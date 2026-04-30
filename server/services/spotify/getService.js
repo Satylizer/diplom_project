@@ -1,0 +1,61 @@
+import axios from 'axios'
+import spotifyApi from '../../clients/spotifyApi.js'
+
+class GetService {
+    async getArtist(id) {
+        const token = await spotifyApi.getToken()
+        const response = await axios.get(`https://api.spotify.com/v1/artists/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        
+        return {
+            spotifyId: response.data.id,
+            name: response.data.name,
+            imgUrl: response.data.images[0]?.url || null,
+            genres: response.data.genres || [],
+            popularity: response.data.popularity
+        }
+    }
+
+    async getAlbum(id) {
+        const token = await spotifyApi.getToken()
+        const response = await axios.get(`https://api.spotify.com/v1/albums/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+            params: { market: 'US' }
+        })
+        
+        return {
+            spotifyId: response.data.id,
+            title: response.data.name,
+            imgUrl: response.data.images[0]?.url || null,
+            releaseDate: response.data.release_date,
+            totalTracks: response.data.total_tracks,
+            artistId: response.data.artists[0]?.id,
+            artistName: response.data.artists[0]?.name,
+            popularity: response.data.popularity
+        }
+    }
+
+    async getAlbumTracks(id) {
+        const token = await spotifyApi.getToken()
+        const response = await axios.get(`https://api.spotify.com/v1/albums/${id}/tracks`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+            params: { limit: 50 },
+            market: 'US'
+        })
+        
+        return response.data.items.map(track => ({
+            spotifyId: track.id,
+            name: track.name,
+            durationMs: track.duration_ms,
+            trackNumber: track.track_number,
+            albumId: id,
+            artists: track.artists.map(artist => ({
+                spotifyId: artist.id,
+                name: artist.name
+            }))
+        }))
+    }
+}
+
+export default new GetService()
