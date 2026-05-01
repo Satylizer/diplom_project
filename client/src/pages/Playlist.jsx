@@ -29,6 +29,16 @@ const PlaylistPage = observer(() => {
     window.location.href = '/profile'
   }
 
+  const handlePlayAll = () => {
+    if (playlistSongs.length > 0) {
+      const songStore = playlistStore.songStore
+      if (songStore) {
+        songStore.setCurrentPlaylist(playlistSongs)
+        songStore.playSong(playlistSongs[0].id)
+      }
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex bg-[#121212] min-h-screen">
@@ -109,13 +119,17 @@ const PlaylistPage = observer(() => {
 
         <div className="flex-1 bg-[#121212] px-8 pt-6 pb-24">
           <div className="flex items-center gap-4 mb-6">
-            <button className="size-12 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-[#2B7FFF]/20">
+            <button 
+              onClick={handlePlayAll}
+              className="size-12 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-[#2B7FFF]/20"
+            >
               <FaPlay className="text-white text-sm ml-0.5" />
             </button>
           </div>
           <SongGrid 
             songs={playlistSongs}
             showAlbum={true}
+            playlistId={parseInt(id)} // Передаем ID плейлиста
           />
         </div>
       </div>

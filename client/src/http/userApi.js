@@ -5,6 +5,11 @@ export const getMe = async () => {
     return data
 }
 
+export const getUsers = async () => {
+    const { data } = await $authHost.get('/api/user/')
+    return data
+}
+
 export const getUser = async (id) => {
     const { data } = await $authHost.get(`/api/user/${id}`)
     return data

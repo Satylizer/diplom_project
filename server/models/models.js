@@ -16,8 +16,6 @@ const Artist = sequelize.define("artist", {
   name: { type: DataTypes.STRING, unique: true, allowNull: false },
   imgUrl: { type: DataTypes.STRING },
   followersCount: { type: DataTypes.INTEGER, defaultValue: 0 },
-  genres: { type: DataTypes.ARRAY(DataTypes.STRING), defaultValue: [] },
-  popularity: { type: DataTypes.INTEGER, defaultValue: 0 }
 });
 
 const Album = sequelize.define(
@@ -30,7 +28,6 @@ const Album = sequelize.define(
     artistId: { type: DataTypes.INTEGER, allowNull: false },
     releaseDate: { type: DataTypes.DATE },
     totalTracks: { type: DataTypes.INTEGER },
-    popularity: { type: DataTypes.INTEGER, defaultValue: 0 }
   },
   {
     indexes: [{ unique: true, fields: ["title", "artistId"] }],
@@ -100,25 +97,6 @@ Playlist.belongsTo(User);
 User.hasMany(History);
 History.belongsTo(User);
 
-User.belongsToMany(User, {
-  through: UserFollowers,
-  as: "followers",
-  foreignKey: "followingId",
-  otherKey: "followerId",
-});
-User.belongsToMany(User, {
-  through: UserFollowers,
-  as: "following",
-  foreignKey: "followerId",
-  otherKey: "followingId",
-});
-
-User.hasMany(ArtistFollowers)
-ArtistFollowers.belongsTo(User)
-
-Artist.hasMany(ArtistFollowers)
-ArtistFollowers.belongsTo(Artist)
-
 Artist.hasMany(Album)
 Album.belongsTo(Artist)
 
@@ -157,6 +135,34 @@ Song.belongsToMany(Playlist, {
     as: 'playlists',
     foreignKey: 'songId',
     otherKey: 'playlistId'
+})
+
+User.belongsToMany(Artist, {
+    through: ArtistFollowers,
+    as: 'followingArtists',
+    foreignKey: 'userId',
+    otherKey: 'artistId'
+})
+
+Artist.belongsToMany(User, {
+    through: ArtistFollowers,
+    as: 'followersArtists',
+    foreignKey: 'artistId',
+    otherKey: 'userId'
+})
+
+User.belongsToMany(User, {
+  through: UserFollowers,
+  as: "followers",
+  foreignKey: "followingId",
+  otherKey: "followerId",
+})
+
+User.belongsToMany(User, {
+  through: UserFollowers,
+  as: "following",
+  foreignKey: "followerId",
+  otherKey: "followingId",
 })
 
 export default {

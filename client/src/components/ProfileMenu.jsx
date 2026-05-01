@@ -12,11 +12,18 @@ const ProfileMenu = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-      if (!profileStore.user) {
-        profileStore.fetchUser()
-      }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    if (userStore.isAuth && !profileStore.user) {
+      profileStore.fetchUser();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userStore.isAuth, profileStore.user]);
+
+  useEffect(() => {
+    if (!userStore.isAuth) {
+      profileStore.clearUser();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userStore.isAuth]);
   
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -24,21 +31,25 @@ const ProfileMenu = observer(() => {
 
   const handleLogout = () => {
     userStore.logout();
+    profileStore.clearUser()
     navigate('/login');
+    setIsOpen(false);
   };
 
   const handleNavigation = (path, tab) => {
-    if (location.pathname === '/profile') {
+    if (location.pathname === '/profile' && tab) {
+      navigate(`${path}?tab=${tab}`);
+    } else if (tab) {
       navigate(`${path}?tab=${tab}`);
     } else {
-      navigate(`${path}?tab=${tab}`);
+      navigate(path);
     }
     setIsOpen(false);
   };
 
   const menuItems = [
     { label: 'Profile', onClick: () => handleNavigation('/profile', 'playlists') },
-    { label: 'Liked Songs', onClick: () => navigate('/likes') },
+    { label: 'Liked Songs', onClick: () => handleNavigation('/likes') },
     { label: 'Playlists', onClick: () => handleNavigation('/profile', 'playlists') },
     { label: 'Following', onClick: () => handleNavigation('/profile', 'following') },
     { label: 'Logout', onClick: handleLogout, danger: true },

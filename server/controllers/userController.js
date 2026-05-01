@@ -5,7 +5,7 @@ import path from "path"
 import fs from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import {fileURLToPath} from 'url'
-const { User } = models
+const { User, UserFollowers } = models
 
 class UserController {
     async updateImg(req, res, next) {
@@ -149,17 +149,75 @@ class UserController {
         }
     }
 
+    async getAll(req, res, next) {
+        try {
+            const currentUserId = req.user.id
+            
+            const users = await User.findAll({
+                where: {
+                    id: { [Op.ne]: currentUserId }
+                },
+                attributes: { exclude: ['password'] },
+                order: [['username', 'ASC']]
+            })
+            
+            return res.json(users)
+        } catch (e) {
+            next(ApiError.internal(`Ошибка получения пользователей: ${e.message}`))
+        }
+    }
+
     async getOne(req, res, next) {
         const { id } = req.params
-        const user = await User.findByPk(id, {
-            attributes: { exclude: ['password'] }
-        })
+        const currentUserId = req.user.id
         
-        if (!user) {
-            return next(ApiError.notFound('Пользователь не найден'))
+        try {
+            const user = await User.findByPk(id, {
+                attributes: { exclude: ['password'] },
+                include: [
+                    {
+                        model: Playlist,
+                        as: 'playlists',
+                        where: { type: 'user' },
+                        required: false,
+                        attributes: ['id', 'title', 'description', 'img', 'type', 'createdAt']
+                    }
+                ]
+            })
+            
+            if (!user) {
+                return next(ApiError.notFound('Пользователь не найден'))
+            }
+            
+            const userJSON = user.toJSON()
+            
+            const followersCount = await UserFollowers.count({
+                where: { followingId: id }
+            })
+
+            const followingCount = await UserFollowers.count({
+                where: { followerId: id }
+            })
+            
+            userJSON.followersCount = followersCount
+            userJSON.followingCount = followingCount
+ 
+            if (currentUserId && currentUserId !== parseInt(id)) {
+                const isFollowing = await UserFollowers.findOne({
+                    where: {
+                        followerId: currentUserId,
+                        followingId: id
+                    }
+                })
+                userJSON.isFollowing = !!isFollowing
+            } else {
+                userJSON.isFollowing = false
+            }
+            
+            return res.json(userJSON)
+        } catch (e) {
+            next(ApiError.internal(`Ошибка получения пользователя: ${e.message}`))
         }
-        
-        return res.json(user)
     }
 
     async getMe(req, res, next) {

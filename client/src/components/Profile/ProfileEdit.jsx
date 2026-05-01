@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite'
-import { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import { HiOutlineX } from 'react-icons/hi'
 import { ProfileContext } from '../../main'
 
@@ -7,16 +7,124 @@ const ProfileEdit = observer(() => {
   const profileStore = useContext(ProfileContext)
   const [activeTab, setActiveTab] = useState('profile')
 
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [emailPassword, setEmailPassword] = useState('')
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (profileStore.isOpen) {
+      setUsername(profileStore.user?.username || '')
+      setEmail(profileStore.user?.email || '')
+      setEmailPassword('')
+      setOldPassword('')
+      setNewPassword('')
+      setMessage('')
+      setError('')
+    }
+  }, [profileStore.isOpen, profileStore.user])
+
   if (!profileStore.isOpen) return null
+
+  const handleClose = () => {
+    profileStore.closeModal()
+  }
+
+  const handleUpdateUsername = async () => {
+    if (!username.trim()) {
+      setError('Введите новое имя')
+      setTimeout(() => setError(''), 3000)
+      return
+    }
+    if (username === profileStore.user?.username) {
+      setError('Имя не изменилось')
+      setTimeout(() => setError(''), 3000)
+      return
+    }
+    setIsLoading(true)
+    try {
+      await profileStore.updateUsername(username)
+      setMessage('Имя пользователя обновлено')
+      setUsername('')
+      setTimeout(() => setMessage(''), 3000)
+    } catch (err) {
+      setError(err.message || 'Ошибка обновления имени')
+      setTimeout(() => setError(''), 3000)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleUpdateEmail = async () => {
+    if (!email.trim()) {
+      setError('Введите новый email')
+      setTimeout(() => setError(''), 3000)
+      return
+    }
+    if (email === profileStore.user?.email) {
+      setError('Email не изменился')
+      setTimeout(() => setError(''), 3000)
+      return
+    }
+    if (!emailPassword) {
+      setError('Введите текущий пароль')
+      setTimeout(() => setError(''), 3000)
+      return
+    }
+    setIsLoading(true)
+    try {
+      await profileStore.updateEmail(email, emailPassword)
+      setMessage('Email обновлен')
+      setEmail('')
+      setEmailPassword('')
+      setTimeout(() => setMessage(''), 3000)
+    } catch (err) {
+      setError(err.message || 'Ошибка обновления email')
+      setTimeout(() => setError(''), 3000)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleUpdatePassword = async () => {
+    if (!oldPassword || !newPassword) {
+      setError('Заполните оба поля')
+      setTimeout(() => setError(''), 3000)
+      return
+    }
+    if (newPassword.length < 6) {
+      setError('Новый пароль должен быть минимум 6 символов')
+      setTimeout(() => setError(''), 3000)
+      return
+    }
+    setIsLoading(true)
+    try {
+      await profileStore.updatePassword(oldPassword, newPassword)
+      setMessage('Пароль обновлен')
+      setOldPassword('')
+      setNewPassword('')
+      setTimeout(() => setMessage(''), 3000)
+    } catch (err) {
+      setError(err.message || 'Ошибка обновления пароля')
+      setTimeout(() => setError(''), 3000)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/70 z-50" onClick={() => profileStore.closeModal()} />
+      <div className="fixed inset-0 bg-black/70 z-50" onClick={handleClose} />
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-[#1A1A1A] rounded-2xl shadow-2xl z-50 overflow-hidden">
-        
+
         <div className="flex justify-between items-center p-5 border-b border-white/10">
           <h2 className="text-white text-2xl font-semibold">Edit Profile</h2>
-          <button onClick={() => profileStore.closeModal()} className="text-[#a1a1aa] hover:text-white transition p-1">
+          <button onClick={handleClose} className="text-[#a1a1aa] hover:text-white transition p-1">
             <HiOutlineX className="w-6 h-6" />
           </button>
         </div>
@@ -64,14 +172,14 @@ const ProfileEdit = observer(() => {
         </div>
 
         <div className="p-6 space-y-5">
-          {profileStore.message && (
+          {message && (
             <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 text-sm text-center">
-              {profileStore.message}
+              {message}
             </div>
           )}
-          {profileStore.error && (
+          {error && (
             <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center">
-              {profileStore.error}
+              {error}
             </div>
           )}
 
@@ -81,18 +189,18 @@ const ProfileEdit = observer(() => {
                 <label className="block text-white text-sm font-medium mb-2">New username</label>
                 <input
                   type="text"
-                  value={profileStore.username}
-                  onChange={(e) => profileStore.setUsername(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter new username"
                   className="w-full px-4 py-2.5 bg-[#2A2A2A] border border-white/10 rounded-xl text-white placeholder:text-[#52525B] focus:outline-none focus:border-[#2B7FFF] transition"
                 />
               </div>
               <button
-                onClick={() => profileStore.updateUsername()}
-                disabled={profileStore.isLoading}
+                onClick={handleUpdateUsername}
+                disabled={isLoading}
                 className="w-full mt-4 py-2.5 bg-[#2B7FFF] hover:bg-[#2B7FFF]/80 rounded-xl text-white text-sm font-medium transition disabled:opacity-50"
               >
-                {profileStore.isLoading ? 'Сохранение...' : 'Update Username'}
+                {isLoading ? 'Сохранение...' : 'Update Username'}
               </button>
             </>
           )}
@@ -103,25 +211,25 @@ const ProfileEdit = observer(() => {
                 <label className="block text-white text-sm font-medium mb-2">New email</label>
                 <input
                   type="email"
-                  value={profileStore.email}
-                  onChange={(e) => profileStore.setEmail(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter new email"
                   className="w-full px-4 py-2.5 bg-[#2A2A2A] border border-white/10 rounded-xl text-white placeholder:text-[#52525B] focus:outline-none focus:border-[#2B7FFF] transition"
                 />
                 <input
                   type="password"
                   placeholder="Current password"
-                  value={profileStore.emailPassword}
-                  onChange={(e) => profileStore.setEmailPassword(e.target.value)}
+                  value={emailPassword}
+                  onChange={(e) => setEmailPassword(e.target.value)}
                   className="w-full mt-3 px-4 py-2.5 bg-[#2A2A2A] border border-white/10 rounded-xl text-white placeholder:text-[#52525B] focus:outline-none focus:border-[#2B7FFF] transition"
                 />
               </div>
               <button
-                onClick={() => profileStore.updateEmail()}
-                disabled={profileStore.isLoading}
+                onClick={handleUpdateEmail}
+                disabled={isLoading}
                 className="w-full mt-4 py-2.5 bg-[#2B7FFF] hover:bg-[#2B7FFF]/80 rounded-xl text-white text-sm font-medium transition disabled:opacity-50"
               >
-                {profileStore.isLoading ? 'Сохранение...' : 'Update Email'}
+                {isLoading ? 'Сохранение...' : 'Update Email'}
               </button>
             </>
           )}
@@ -132,26 +240,26 @@ const ProfileEdit = observer(() => {
                 <input
                   type="password"
                   placeholder="Current password"
-                  value={profileStore.oldPassword}
-                  onChange={(e) => profileStore.setOldPassword(e.target.value)}
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
                   className="w-full px-4 py-2.5 bg-[#2A2A2A] border border-white/10 rounded-xl text-white placeholder:text-[#52525B] focus:outline-none focus:border-[#2B7FFF] transition"
                 />
               </div>
               <div>
                 <input
                   type="password"
-                  placeholder="New password"
-                  value={profileStore.newPassword}
-                  onChange={(e) => profileStore.setNewPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-[#2A2A2A] border border-white/10 rounded-xl text-white placeholder:text-[#52525B] focus:outline-none focus:border-[#2B7FFF] transition"
+                  placeholder="New password (min 6 characters)"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full mt-3 px-4 py-2.5 bg-[#2A2A2A] border border-white/10 rounded-xl text-white placeholder:text-[#52525B] focus:outline-none focus:border-[#2B7FFF] transition"
                 />
               </div>
               <button
-                onClick={() => profileStore.updatePassword()}
-                disabled={profileStore.isLoading}
+                onClick={handleUpdatePassword}
+                disabled={isLoading}
                 className="w-full mt-4 py-2.5 bg-[#2B7FFF] hover:bg-[#2B7FFF]/80 rounded-xl text-white text-sm font-medium transition disabled:opacity-50"
               >
-                {profileStore.isLoading ? 'Сохранение...' : 'Update Password'}
+                {isLoading ? 'Сохранение...' : 'Update Password'}
               </button>
             </>
           )}

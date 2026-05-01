@@ -1,14 +1,21 @@
 import ApiError from "../error/ApiError.js"
 import models from "../models/models.js"
 
-const { Artist, Album, Song, SongArtists } = models
+const { Artist, Album, ArtistFollowers } = models
 
 class ArtistController {
     async getAll(req, res, next) {
         try {
             const artists = await Artist.findAll({
-                attributes: ['id', 'name', 'imgUrl', 'genres', 'popularity', 'followersCount'],
-                order: [['name', 'ASC']]
+                attributes: ['id', 'name', 'imgUrl', 'followersCount'],
+                order: [['name', 'ASC']],
+                include: [
+                    {
+                        model: Album,
+                        attributes: ['id', 'title', 'imgUrl', 'releaseDate', 'totalTracks'],
+                        order: [['releaseDate', 'DESC']]
+                    }
+                ]
             })
             
             return res.json(artists)
@@ -18,28 +25,37 @@ class ArtistController {
     }
 
     async getOne(req, res, next) {
+        const { id } = req.params
+        const currentUserId = req.user?.id
+        
         try {
-            const { id } = req.params
-            
-            const artist = await Artist.findOne({
-                where: { id },
-                attributes: ['id', 'name', 'imgUrl', 'genres', 'popularity', 'followersCount'],
-                include: [
-                    {
-                        model: Album,
-                        attributes: ['id', 'title', 'imgUrl', 'releaseDate', 'totalTracks', 'popularity'],
-                        order: [['releaseDate', 'DESC']]
-                    }
-                ]
+            const artist = await Artist.findByPk(id, {
+                include: [{ model: Album, as: 'albums' }]
             })
             
-            if (!artist) {
-                return next(ApiError.notFound('Артист не найден'))
+            if (!artist) return next(ApiError.notFound('Артист не найден'))
+            
+            let followersCount = 0
+            let isFollowing = false
+            
+            if (ArtistFollowers) {
+                followersCount = await ArtistFollowers.count({ where: { artistId: id } })
+                
+                if (currentUserId) {
+                    const follow = await ArtistFollowers.findOne({
+                        where: { userId: currentUserId, artistId: id }
+                    })
+                    isFollowing = !!follow
+                }
             }
             
-            return res.json(artist)
+            return res.json({
+                ...artist.dataValues,
+                followersCount,
+                isFollowing
+            })
         } catch (e) {
-            next(ApiError.internal(`Ошибка получения артиста: ${e.message}`))
+            next(ApiError.internal(e.message))
         }
     }
 }

@@ -42,7 +42,7 @@ export default class AlbumStore {
 
     getPopularAlbums(limit = 10) {
         return [...this._albums]
-            .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+            .sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate))
             .slice(0, limit)
     }
 

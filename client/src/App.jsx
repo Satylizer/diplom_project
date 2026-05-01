@@ -26,11 +26,7 @@ const App = observer(() => {
         )
     }
 
-    return (
-        <BrowserRouter>
-            <AppRouter />
-        </BrowserRouter>
-    )
+    return ( <AppRouter /> )
 })
 
 export default App

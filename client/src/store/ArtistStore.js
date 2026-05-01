@@ -31,8 +31,12 @@ export default class ArtistStore {
     }
 
     getPopularArtists(limit = 10) {
-        return [...this._artists]
-            .sort((a, b) => b.popularity - a.popularity)
+        const artistsWithAlbums = this._artists.filter(artist => artist.albums?.length > 0)
+        
+        if (artistsWithAlbums.length === 0) return []
+        
+        return [...artistsWithAlbums]
+            .sort((a, b) => b.albums.length - a.albums.length)
             .slice(0, limit)
     }
 

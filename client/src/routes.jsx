@@ -8,7 +8,9 @@ import {
     SEARCH_ROUTE, 
     PROFILE_ROUTE,
     ALBUM_ROUTE,
-    PLAYLIST_ROUTE
+    PLAYLIST_ROUTE,
+    ARTIST_ROUTE,
+    USER_ROUTE
 } from "./utils/consts";
 import Auth from "./pages/Auth"
 import Profile from "./pages/Profile"
@@ -19,6 +21,8 @@ import Home from "./pages/Home"
 import Search from "./pages/Search"
 import Album from "./pages/Album"
 import Playlist from "./pages/Playlist"
+import Artist from "./pages/Artist"
+import User from "./pages/User"
 
 export const privateRoutes = [
     {
@@ -46,13 +50,17 @@ export const privateRoutes = [
         element: <Search/>
     },
     {
-        path: ALBUM_ROUTE + '/:id',
-        element: <Album/>
-    },
-    {
         path: PLAYLIST_ROUTE + '/:id',
         element: <Playlist/>
     },
+    {
+        path: ARTIST_ROUTE + '/:id',
+        element: <Artist/>
+    },
+    {
+        path: USER_ROUTE + '/:id',
+        element: <User/>
+    }
 ]
 
 export const publicRoutes = [
@@ -63,5 +71,9 @@ export const publicRoutes = [
     {
         path: LOGIN_ROUTE,
         element: <Auth/>
+    },
+    {
+        path: ALBUM_ROUTE + '/:id',
+        element: <Album/>
     },
 ]

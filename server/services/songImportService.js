@@ -14,8 +14,6 @@ class SongImportService {
             defaults: {
                 name: mainArtist.name,
                 imgUrl: mainArtist.imgUrl,
-                genres: mainArtist.genres || [],
-                popularity: mainArtist.popularity || 0
             }
         })
 
@@ -27,7 +25,6 @@ class SongImportService {
                 releaseDate: albumData.releaseDate,
                 totalTracks: albumData.totalTracks,
                 artistId: artist.id,
-                popularity: albumData.popularity || 0
             }
         })
 
@@ -54,8 +51,6 @@ class SongImportService {
                         spotifyId: trackArtist.spotifyId,
                         name: trackArtist.name,
                         imgUrl: fullArtist.imgUrl,
-                        genres: trackArtist.genres || [],
-                        popularity: fullArtist.popularity || 0
                     })
                 }
                 

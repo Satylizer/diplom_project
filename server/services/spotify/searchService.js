@@ -7,7 +7,7 @@ class SearchService {
         const token = await spotifyApi.getToken()
         const response = await axios.get('https://api.spotify.com/v1/search', {
             headers: { 'Authorization': `Bearer ${token}` },
-            params: { q: name, type: 'artist', limit: 1}
+            params: { q: name, type: 'artist', limit: 1, market: 'US'}
         })
         
         if (!response.data.artists || !response.data.artists.items.length) {

@@ -5,7 +5,8 @@ const SongGrid = ({
   songs = [],
   onPlay,
   showHeader = true,
-  showAlbum = true
+  showAlbum = true,
+  playlistId = null
 }) => {
 
   const isEmpty = songs.length === 0
@@ -47,6 +48,7 @@ const SongGrid = ({
             index={idx + 1}
             onPlay={onPlay}
             showAlbum={showAlbum}
+            playlistId={playlistId}
           />
         ))}
       </div>

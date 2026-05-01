@@ -1,16 +1,20 @@
 import { useState, useContext, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
-import { ProfileContext, PlaylistContext } from '../../main'
+import { ProfileContext, PlaylistContext, FollowContext } from '../../main'
 import PlaylistCard from '../Playlist/PlaylistCard'
 import PlaylistCreate from '../Playlist/PlaylistCreate'
+import ArtistCard from '../ArtistCard'
+import UserCard from '../UserCard'
 
 const ProfileMain = observer(() => {
   const navigate = useNavigate()
   const location = useLocation()
   const playlistStore = useContext(PlaylistContext)
+  const followStore = useContext(FollowContext)
   const [activeTab, setActiveTab] = useState('playlists')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -23,8 +27,23 @@ const ProfileMain = observer(() => {
   useEffect(() => {
     if (activeTab === 'playlists') {
       playlistStore.fetchPlaylists()
+    } else if (activeTab === 'following') {
+      loadFollowedData()
     }
-  }, [activeTab, playlistStore])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab])
+
+  const loadFollowedData = async () => {
+    setIsLoading(true)
+    try {
+      await followStore.fetchFollowingArtists()
+      await followStore.fetchUserFollowing()
+    } catch (error) {
+      console.error('Ошибка загрузки подписок:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleCreatePlaylist = async (formData) => {
     const result = await playlistStore.createPlaylist(formData)
@@ -36,6 +55,17 @@ const ProfileMain = observer(() => {
   const handleTabChange = (tab) => {
     setActiveTab(tab)
     navigate(`/profile?tab=${tab}`)
+  }
+
+  const followedArtists = followStore.followedArtists || []
+  const followedUsers = followStore.followedUsers || []
+
+  if (isLoading && activeTab === 'following') {
+    return (
+      <div className="flex-1 bg-[#121212] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[#27272A] border-t-[#2B7FFF] rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -107,18 +137,30 @@ const ProfileMain = observer(() => {
             <div className="mb-6">
               <h3 className="text-white text-lg font-semibold mb-4">Artists</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                <div className="text-[#a1a1aa] text-center py-10 col-span-full">
-                  <p>No followed artists yet</p>
-                </div>
+                {followedArtists.length > 0 ? (
+                  followedArtists.map(artist => (
+                    <ArtistCard key={artist.id} artist={artist} />
+                  ))
+                ) : (
+                  <div className="text-[#a1a1aa] text-center py-10 col-span-full">
+                    <p>No followed artists yet</p>
+                  </div>
+                )}
               </div>
             </div>
             
             <div>
               <h3 className="text-white text-lg font-semibold mb-4">Users</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                <div className="text-[#a1a1aa] text-center py-10 col-span-full">
-                  <p>No followed users yet</p>
-                </div>
+                {followedUsers.length > 0 ? (
+                  followedUsers.map(user => (
+                    <UserCard key={user.id} user={user} />
+                  ))
+                ) : (
+                  <div className="text-[#a1a1aa] text-center py-10 col-span-full">
+                    <p>No followed users yet</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
