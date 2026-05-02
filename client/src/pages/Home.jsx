@@ -2,7 +2,7 @@ import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import AlbumCard from '../components/AlbumCard'
 import { useContext, useEffect } from 'react'
-import { AlbumContext, ArtistContext, SongContext } from '../main'
+import { AlbumContext, ArtistContext, SongContext, UserContext } from '../main'
 import { observer } from 'mobx-react-lite';
 import { HiOutlineSparkles } from 'react-icons/hi';
 
@@ -10,6 +10,7 @@ const Home = observer(() => {
   const albumStore = useContext(AlbumContext)
   const artistStore = useContext(ArtistContext)
   const songStore = useContext(SongContext)
+  const userStore = useContext(UserContext)
   
   const isLoading = albumStore.isLoading || artistStore.isLoading || songStore.isLoading
   const albumsList = albumStore.albums || []
@@ -24,7 +25,8 @@ const Home = observer(() => {
     if (songStore.songs.length === 0 && !songStore.isLoading) {
       songStore.fetchSongs()
     }
-  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userStore.user.id])
 
   const getRecommendedForYou = () => {
     return albumsList.slice(0, 6)

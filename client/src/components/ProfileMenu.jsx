@@ -17,13 +17,6 @@ const ProfileMenu = observer(() => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userStore.isAuth, profileStore.user]);
-
-  useEffect(() => {
-    if (!userStore.isAuth) {
-      profileStore.clearUser();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userStore.isAuth]);
   
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -31,7 +24,7 @@ const ProfileMenu = observer(() => {
 
   const handleLogout = () => {
     userStore.logout();
-    profileStore.clearUser()
+    profileStore.clearUser();
     navigate('/login');
     setIsOpen(false);
   };

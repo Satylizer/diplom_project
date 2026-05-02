@@ -4,16 +4,18 @@ import { BrowserRouter } from "react-router-dom"
 import { useContext, useEffect } from "react"
 import { UserContext } from "./main"
 
+
 const App = observer(() => {
     const userStore = useContext(UserContext)
-
+    
     useEffect(() => {
         const init = async () => {
             await userStore.checkAuth()
+            console.log("check");
         }
         init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [userStore.user?.id])
 
     if (userStore.isLoading) {
         return (

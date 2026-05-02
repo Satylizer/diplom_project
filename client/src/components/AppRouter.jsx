@@ -8,8 +8,6 @@ import { UserContext } from "../main"
 const AppRouter = observer(() => {
     const user = useContext(UserContext)
 
-    console.log('isAuth:', user.isAuth)
-
     return (
         <Routes>
             {user.isAuth && privateRoutes.map(({path, element}) => {

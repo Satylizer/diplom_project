@@ -4,12 +4,13 @@ import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import ProfileEdit from '../components/Profile/ProfileEdit'
 import ProfileMain from '../components/Profile/ProfileMain'
-import { ProfileContext } from '../main'
+import { ProfileContext, UserContext } from '../main'
 import { HiOutlineUser, HiOutlinePencil, HiOutlineCamera } from 'react-icons/hi'
 
 const Profile = observer(() => {
   const profileStore = useContext(ProfileContext)
   const fileInputRef = useRef(null)
+  const userStore = useContext(UserContext)
   const username = profileStore.user?.username || 'User'
   const avatarUrl = profileStore.user?.img || null
 
@@ -18,7 +19,7 @@ const Profile = observer(() => {
       profileStore.fetchUser()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [userStore.user?.id])
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click()
@@ -57,7 +58,7 @@ const Profile = observer(() => {
               onClick={handleAvatarClick}
               className="relative group cursor-pointer"
             >
-              <div className="w-48 h-48 rounded-full bg-[#181818] shadow-2xl flex items-center justify-center shrink-0 overflow-hidden">
+              <div className="w-50 h-50 rounded-full bg-[#181818] shadow-2xl flex items-center justify-center shrink-0 overflow-hidden">
                 {avatarUrl ? (
                   <img src={`${import.meta.env.VITE_API_URL}/${avatarUrl}`} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (

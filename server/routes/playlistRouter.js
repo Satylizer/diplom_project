@@ -6,6 +6,7 @@ import authMiddleware from "../middleware/authMiddleware.js"
 
 router.post('/', authMiddleware, playlistController.create)
 router.get('/', authMiddleware, playlistController.getAll)
+router.get('/user/:userId', authMiddleware, playlistController.getUserPlaylists)
 router.get('/:id', authMiddleware, playlistController.getOne)
 router.delete('/:id', authMiddleware, playlistController.delete)
 

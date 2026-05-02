@@ -46,6 +46,25 @@ class PlaylistController {
         return res.json(playlists)
     }
 
+    async getUserPlaylists(req, res, next) {
+        try {
+            const { userId } = req.params
+            
+            const playlists = await Playlist.findAll({
+                where: { 
+                    userId,
+                    type: 'custom'
+                },
+                attributes: ['id', 'title', 'description', 'img', 'type', 'createdAt'],
+                order: [['createdAt', 'DESC']],
+            })
+            
+            return res.json(playlists)
+        } catch (e) {
+            next(ApiError.internal(`Ошибка получения плейлистов пользователя: ${e.message}`))
+        }
+    }
+
     async getOne(req, res, next) {
         const { id } = req.params
         const userId = req.user.id   

@@ -10,6 +10,11 @@ export const getPlaylist = async (id) => {
     return data
 }
 
+export const getUserPlaylists = async (userId) => {
+    const { data } = await $authHost.get(`/api/playlist/user/${userId}`)
+    return data
+}
+
 export const createPlaylist = async (playlistData) => {
     const { data } = await $authHost.post('/api/playlist', playlistData, {
         headers: { 'Content-Type': 'multipart/form-data' }

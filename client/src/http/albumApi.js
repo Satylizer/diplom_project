@@ -1,4 +1,4 @@
-import { $host } from './index'
+import { $host, $authHost } from './index'
 
 export const getAlbums = async () => {
     const { data } = await $host.get('/api/album')
@@ -6,6 +6,16 @@ export const getAlbums = async () => {
 }
 
 export const getAlbum = async (id) => {
-    const { data } = await $host.get(`/api/album/${id}`)
+    const { data } = await $authHost.get(`/api/album/${id}`)
+    return data
+}
+
+export const toggleAlbumLike = async (albumId) => {
+    const { data } = await $authHost.post(`/api/album/${albumId}/like`)
+    return data
+}
+
+export const getLikedAlbums = async () => {
+    const { data } = await $authHost.get('/api/album/liked')
     return data
 }

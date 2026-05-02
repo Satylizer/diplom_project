@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite'
 import AlbumCard from '../AlbumCard'
 import ArtistCard from '../ArtistCard'
 import SongCard from '../Song/SongCard'
+import UserCard from '../UserCard'
 
 const SearchResults = observer(({ searchStore }) => {
   const results = searchStore.results
@@ -58,6 +59,18 @@ const SearchResults = observer(({ searchStore }) => {
     )
   }
 
+  if (activeFilter === 'Users') {
+    return (
+      <div className="mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {results.map(user => (
+            <UserCard key={user.id} user={user} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="mt-6">
       <div className="divide-y divide-white/5">
@@ -68,6 +81,9 @@ const SearchResults = observer(({ searchStore }) => {
           }
           if (result.type === 'artist') {
             return <ArtistCard key={uniqueKey} artist={result} inlineView={true} />
+          }
+          if (result.type === 'user') {
+            return <UserCard key={uniqueKey} user={result} inlineView={true} />
           }
           return <SongCard key={uniqueKey} songId={result.id} inlineView={true} onPlay={() => {}} />
         })}

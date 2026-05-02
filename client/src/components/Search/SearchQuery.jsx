@@ -4,12 +4,13 @@ import { HiOutlineSearch, HiOutlineX } from 'react-icons/hi'
 import SearchFilters from './SearchFilters'
 import SearchMain from './SearchMain'
 import SearchResults from './SearchResults'
-import { AlbumContext, ArtistContext, SearchContext, SongContext } from '../../main'
+import { AlbumContext, ArtistContext, SearchContext, SongContext, UserContext } from '../../main'
 
 const SearchQuery = observer(() => {
   const albumStore = useContext(AlbumContext)
   const artistStore = useContext(ArtistContext)
   const songStore = useContext(SongContext)
+  const userStore = useContext(UserContext)
   const searchStore = useContext(SearchContext)
 
   useEffect(() => {
@@ -23,7 +24,15 @@ const SearchQuery = observer(() => {
       if (songStore.songs.length === 0 && !songStore.isLoading) {
         await songStore.fetchSongs()
       }
-      searchStore.setAllData(albumStore.albums, artistStore.artists, songStore.songs)
+      if (userStore.users.length === 0 && !userStore.isLoading) {
+        await userStore.fetchUsers()
+      }
+      searchStore.setAllData(
+        albumStore.albums, 
+        artistStore.artists, 
+        songStore.songs,
+        userStore.users
+      )
     }
     loadData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -36,7 +45,7 @@ const SearchQuery = observer(() => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchStore.activeFilter])
 
-  const isLoading = albumStore.isLoading || artistStore.isLoading || songStore.isLoading
+  const isLoading = albumStore.isLoading || artistStore.isLoading || songStore.isLoading || userStore.isLoading
 
   if (isLoading) {
     return (

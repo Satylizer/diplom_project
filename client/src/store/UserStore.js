@@ -6,8 +6,11 @@ export default class UserStore {
     constructor() {
         this._user = {}
         this._users = []
+        this._targetUser = null
         this._isAuth = false
         this._isLoading = true
+        this._isUsersLoading = false
+        this._isTargetLoading = false
         this._error = null
         makeAutoObservable(this)
     }
@@ -20,12 +23,24 @@ export default class UserStore {
         return this._users
     }
 
+    get targetUser() {
+        return this._targetUser
+    }
+
     get isAuth() {
         return this._isAuth
     }
 
     get isLoading() {
         return this._isLoading
+    }
+
+    get isUsersLoading() {
+        return this._isUsersLoading
+    }
+
+    get isTargetLoading() {
+        return this._isTargetLoading
     }
 
     get error() {
@@ -110,13 +125,15 @@ export default class UserStore {
         runInAction(() => {
             this._user = {}
             this._users = []
+            this._targetUser = null
             this._isAuth = false
             this._error = null
         })
     }
 
     fetchUsers = async () => {
-        this._isLoading = true
+        if (this._isUsersLoading) return
+        this._isUsersLoading = true
         this._error = null
         try {
             const data = await getUsers()
@@ -130,16 +147,20 @@ export default class UserStore {
             console.error('Ошибка загрузки пользователей:', e)
         } finally {
             runInAction(() => {
-                this._isLoading = false
+                this._isUsersLoading = false
             })
         }
     }
 
     fetchUserById = async (id) => {
-        this._isLoading = true
+        if (this._isTargetLoading && this._targetUser?.id === id) return
+        this._isTargetLoading = true
         this._error = null
         try {
             const userData = await getUser(id)
+            runInAction(() => {
+                this._targetUser = userData
+            })
             return userData
         } catch (e) {
             runInAction(() => {
@@ -149,7 +170,7 @@ export default class UserStore {
             return null
         } finally {
             runInAction(() => {
-                this._isLoading = false
+                this._isTargetLoading = false
             })
         }
     }

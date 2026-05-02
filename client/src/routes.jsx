@@ -60,7 +60,11 @@ export const privateRoutes = [
     {
         path: USER_ROUTE + '/:id',
         element: <User/>
-    }
+    },
+    {
+        path: ALBUM_ROUTE + '/:id',
+        element: <Album/>
+    },
 ]
 
 export const publicRoutes = [
@@ -71,9 +75,5 @@ export const publicRoutes = [
     {
         path: LOGIN_ROUTE,
         element: <Auth/>
-    },
-    {
-        path: ALBUM_ROUTE + '/:id',
-        element: <Album/>
     },
 ]

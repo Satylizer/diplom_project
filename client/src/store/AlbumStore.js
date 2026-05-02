@@ -1,9 +1,10 @@
 import { makeAutoObservable, runInAction } from 'mobx'
-import { getAlbums, getAlbum } from '../http/albumApi'
+import { getAlbums, getAlbum, toggleAlbumLike, getLikedAlbums } from '../http/albumApi'
 
 export default class AlbumStore {
     constructor() {
         this._albums = []
+        this._likedAlbums = []
         this._currentAlbum = null
         this._isLoading = false
         this._error = null
@@ -12,6 +13,10 @@ export default class AlbumStore {
 
     get albums() {
         return this._albums
+    }
+
+    get likedAlbums() {
+        return this._likedAlbums
     }
 
     get currentAlbum() {
@@ -83,6 +88,54 @@ export default class AlbumStore {
             console.error('Не удалось получить альбом:', e)
             runInAction(() => {
                 this._error = e.message
+                this._isLoading = false
+            })
+        }
+    }
+
+    toggleLike = async (albumId) => {
+        try {
+            const data = await toggleAlbumLike(albumId)
+            
+            if (this._currentAlbum && this._currentAlbum.id === albumId) {
+                runInAction(() => {
+                    this._currentAlbum.isLiked = data.isLiked
+                })
+            }
+            
+            const album = this._albums.find(a => a.id === albumId)
+            if (album) {
+                runInAction(() => {
+                    album.isLiked = data.isLiked
+                })
+            }
+            
+            return data
+        } catch (e) {
+            console.error('Ошибка лайка альбома:', e)
+            return { isLiked: false }
+        }
+    }
+
+    fetchLikedAlbums = async () => {
+        runInAction(() => {
+            this._isLoading = true
+            this._error = null
+        })
+        try {
+            const data = await getLikedAlbums()
+            runInAction(() => {
+                this._likedAlbums = data
+            })
+            return data
+        } catch (e) {
+            runInAction(() => {
+                this._error = e.message
+            })
+            console.error('Не удалось получить лайкнутые альбомы:', e)
+            return []
+        } finally {
+            runInAction(() => {
                 this._isLoading = false
             })
         }

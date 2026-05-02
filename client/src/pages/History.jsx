@@ -3,15 +3,16 @@ import { observer } from 'mobx-react-lite'
 import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import SongGrid from '../components/Song/SongGrid'
-import { HistoryContext } from '../main'
+import { HistoryContext, UserContext } from '../main'
 import { FaClock } from 'react-icons/fa'
 
 const History = observer(() => {
     const historyStore = useContext(HistoryContext)
+    const userStore = useContext(UserContext)
 
     useEffect(() => {
         historyStore.fetchHistory()
-    }, [historyStore])
+    }, [historyStore, userStore.user.id])
 
     if (historyStore.isLoading) {
         return (

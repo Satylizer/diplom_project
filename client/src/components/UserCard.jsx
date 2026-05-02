@@ -1,6 +1,6 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaUserCircle } from 'react-icons/fa';
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { FaUserCircle } from 'react-icons/fa'
 
 const UserCard = ({ 
   user,
@@ -11,11 +11,11 @@ const UserCard = ({
   hasOverlay = false,
   inlineView = false,
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const animationClass = hasTransition && !inlineView
     ? 'transition-transform duration-300 group-hover:scale-105 will-change-transform' 
-    : '';
+    : ''
 
   const handleClick = () => {
     navigate(`/user/${user.id}`)
@@ -57,7 +57,7 @@ const UserCard = ({
       className={`cursor-pointer w-full group ${cardSize}`}
     >
       <div className="bg-[#181818] rounded-lg p-4 overflow-hidden relative">
-        <div className="aspect-square rounded-full bg-linear-to-br from-[#2B7FFF] to-[#1447E6] overflow-hidden mb-3">
+        <div className="aspect-square rounded-full bg-linear-to-br from-teal-400 to-cyan-600 overflow-hidden mb-3">
           {user.img ? (
             <img 
               src={`${import.meta.env.VITE_API_URL}/${user.img}`} 
@@ -93,7 +93,7 @@ const UserCard = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default UserCard;
+export default UserCard

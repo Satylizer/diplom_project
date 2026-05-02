@@ -22,13 +22,6 @@ export default class ProfileStore {
         this.isEditModalOpen = false
     }
 
-    clearUser = () => {
-        runInAction(() => {
-            this.user = null
-            this.targetUser = null
-        })
-    }
-
     fetchUser = async () => {
         try {
             const userData = await getMe()
@@ -71,4 +64,19 @@ export default class ProfileStore {
         })
         return data
     }
+
+    clearUser = () => {
+        runInAction(() => {
+            this.user = null;
+            this.isEditModalOpen = false;
+            this.username = '';
+            this.email = '';
+            this.emailPassword = '';
+            this.oldPassword = '';
+            this.newPassword = '';
+            this.message = '';
+            this.error = '';
+            this.isLoading = false;
+    });
+}
 }

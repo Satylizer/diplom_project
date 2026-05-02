@@ -6,11 +6,12 @@ export default class SearchStore {
     this.activeFilter = "All"
     this.isLocked = false
     this.searchResults = []
-    this.filters = ['All', 'Tracks', 'Albums', 'Artists']
+    this.filters = ['All', 'Tracks', 'Albums', 'Artists', 'Users']
     
     this.allAlbums = []
     this.allArtists = []
     this.allSongs = []
+    this.allUsers = []
     
     makeAutoObservable(this)
   }
@@ -37,10 +38,11 @@ export default class SearchStore {
     return normalized.startsWith(searchTerm) || normalized.includes(` ${searchTerm}`)
   }
 
-  setAllData = (albums, artists, songs) => {
+  setAllData = (albums, artists, songs, users) => {
     this.allAlbums = albums
     this.allArtists = artists
     this.allSongs = songs
+    this.allUsers = users
   }
 
   setQuery = (query) => {
@@ -111,6 +113,16 @@ export default class SearchStore {
         ).map(item => ({ ...item, type: 'track', uniqueKey: `track-${item.id}` }))
         break
       }
+      case 'Users': {
+        results = this.allUsers.filter(user => 
+          this.matchesSearch(user.username, searchTerm)
+        ).filter(user => user.id !== this.currentUserId).map(item => ({ 
+          ...item, 
+          type: 'user', 
+          uniqueKey: `user-${item.id}` 
+        }))
+        break
+      }
       default: {
         const allResults = [
           ...this.allAlbums.filter(album => 
@@ -121,7 +133,14 @@ export default class SearchStore {
           ).map(item => ({ ...item, type: 'artist', uniqueKey: `artist-${item.id}` })),
           ...this.allSongs.filter(song => 
             this.matchesSearch(song.name, searchTerm)
-          ).map(item => ({ ...item, type: 'track', uniqueKey: `track-${item.id}` }))
+          ).map(item => ({ ...item, type: 'track', uniqueKey: `track-${item.id}` })),
+          ...this.allUsers.filter(user => 
+            this.matchesSearch(user.username, searchTerm)
+          ).filter(user => user.id !== this.currentUserId).map(item => ({ 
+            ...item, 
+            type: 'user', 
+            uniqueKey: `user-${item.id}` 
+          }))
         ]
         
         const uniqueMap = new Map()

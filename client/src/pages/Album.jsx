@@ -1,21 +1,33 @@
 import { useParams } from 'react-router-dom'
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import SongGrid from '../components/Song/SongGrid'
 import { AlbumContext } from '../main'
-import { FaPlay } from 'react-icons/fa'
+import { FaPlay, FaPlus, FaCheck } from 'react-icons/fa'
 
 const AlbumPage = observer(() => {
   const { id } = useParams()
   const albumStore = useContext(AlbumContext)
+  const [isLiked, setIsLiked] = useState(false)
 
   useEffect(() => {
     if (id && albumStore.currentAlbum?.id !== parseInt(id)) {
       albumStore.fetchAlbum(id)
     }
   }, [id, albumStore])
+
+  useEffect(() => {
+    if (albumStore.currentAlbum) {
+      setIsLiked(albumStore.currentAlbum.isLiked || false)
+    }
+  }, [albumStore.currentAlbum])
+
+  const handleToggleLike = async () => {
+    const result = await albumStore.toggleLike(id)
+    setIsLiked(result.isLiked)
+  }
 
   const album = albumStore.currentAlbum
   const loading = albumStore.isLoading
@@ -51,13 +63,12 @@ const AlbumPage = observer(() => {
       
       <div className="flex-1 relative flex flex-col h-screen overflow-y-auto">
         <div 
-          className="absolute top-0 left-0 right-0 h-96 pointer-events-none z-0"
+          className="absolute top-0 left-0 right-0 h-98 pointer-events-none z-0"
           style={{
             background: `linear-gradient(to bottom, 
-              #2B7FFF 0%, 
-              #2B77ED 20%, 
-              #121212 100%)`,
-            opacity: 0.8
+              #00D2FF 0%, 
+              #00A3FF 40%, 
+              #09090b 100%)`
           }} 
         />
         
@@ -77,7 +88,7 @@ const AlbumPage = observer(() => {
               ) : (
                 <div className="w-full h-full bg-linear-to-br from-[#2B7FFF] to-[#1447E6] flex items-center justify-center">
                   <svg className="w-24 h-24 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                   </svg>
                 </div>
               )}
@@ -102,7 +113,17 @@ const AlbumPage = observer(() => {
 
           <div className="flex items-center gap-6 pl-4">
             <button className="size-15 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-[#2B7FFF]/20">
-              <FaPlay className="text-white text-base ml-0.5" />
+              <FaPlay className="text-white text-2xl ml-1" />
+            </button>
+            <button 
+              onClick={handleToggleLike}
+              className={`size-9 rounded-full flex items-center justify-center transition-all ${
+                isLiked 
+                  ? 'bg-[#2B7FFF] text-white hover:bg-[#2B7FFF]/80' 
+                  : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm'
+              }`}
+            >
+              {isLiked ? <FaCheck className="text-white text-sm" /> : <FaPlus className="text-white text-sm" />}
             </button>
           </div>
         </div>

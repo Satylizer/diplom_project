@@ -8,7 +8,7 @@ const User = sequelize.define("user", {
   email: { type: DataTypes.STRING, unique: true, allowNull: false },
   password: { type: DataTypes.STRING, allowNull: false },
   role: { type: DataTypes.STRING, defaultValue: "USER" },
-});
+})
 
 const Artist = sequelize.define("artist", {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -16,7 +16,7 @@ const Artist = sequelize.define("artist", {
   name: { type: DataTypes.STRING, unique: true, allowNull: false },
   imgUrl: { type: DataTypes.STRING },
   followersCount: { type: DataTypes.INTEGER, defaultValue: 0 },
-});
+})
 
 const Album = sequelize.define(
   "album",
@@ -32,7 +32,7 @@ const Album = sequelize.define(
   {
     indexes: [{ unique: true, fields: ["title", "artistId"] }],
   },
-);
+)
 
 const Song = sequelize.define("song", {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -44,7 +44,7 @@ const Song = sequelize.define("song", {
   totalLikes: { type: DataTypes.INTEGER, defaultValue: 0 },
   trackNumber: { type: DataTypes.INTEGER },
   albumId: { type: DataTypes.INTEGER },
-});
+})
 
 const Playlist = sequelize.define("playlist", {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -53,30 +53,30 @@ const Playlist = sequelize.define("playlist", {
   img: { type: DataTypes.STRING, allowNull: false },
   type: { type: DataTypes.STRING },
   userId: { type: DataTypes.INTEGER, allowNull: false },
-});
+})
 
 const Likes = sequelize.define("likes", {
   userId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
   songId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
-});
+})
 
 const History = sequelize.define("history", {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   playedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   userId: { type: DataTypes.INTEGER, allowNull: false },
   songId: { type: DataTypes.INTEGER, allowNull: false },
-});
+})
 
 const SongArtists = sequelize.define("song_artists", {
   songId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
   artistId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
-});
+})
 
 const PlaylistTracks = sequelize.define("playlist_tracks", {
   playlistId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
   songId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
   position: { type: DataTypes.INTEGER },
-});
+})
 
 const UserFollowers = sequelize.define("user_followers", {
   followerId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
@@ -86,16 +86,21 @@ const UserFollowers = sequelize.define("user_followers", {
 const ArtistFollowers = sequelize.define("artist_followers", {
   userId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
   artistId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
-});
+})
 
-User.hasMany(Likes);
-Likes.belongsTo(User);
+const AlbumLikes = sequelize.define("album_likes", {
+  userId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
+  albumId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false },
+})
 
-User.hasMany(Playlist);
-Playlist.belongsTo(User);
+User.hasMany(Likes)
+Likes.belongsTo(User)
 
-User.hasMany(History);
-History.belongsTo(User);
+User.hasMany(Playlist)
+Playlist.belongsTo(User)
+
+User.hasMany(History)
+History.belongsTo(User)
 
 Artist.hasMany(Album)
 Album.belongsTo(Artist)
@@ -165,6 +170,20 @@ User.belongsToMany(User, {
   otherKey: "followingId",
 })
 
+User.belongsToMany(Album, {
+  through: AlbumLikes, 
+  as: 'likedAlbums', 
+  foreignKey: 'userId', 
+  otherKey: 'albumId' 
+})
+
+Album.belongsToMany(User, {
+   through: AlbumLikes, 
+   as: 'likedBy', 
+   foreignKey: 'albumId', 
+   otherKey: 'userId' 
+  })
+
 export default {
   User,
   Artist,
@@ -177,4 +196,5 @@ export default {
   PlaylistTracks,
   UserFollowers,
   ArtistFollowers,
+  AlbumLikes
 };

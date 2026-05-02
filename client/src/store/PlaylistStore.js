@@ -1,9 +1,10 @@
 import { makeAutoObservable, runInAction } from 'mobx'
-import { getPlaylists, getPlaylist, createPlaylist, deletePlaylist, addSongToPlaylist, removeSongFromPlaylist } from '../http/playlistApi'
+import { getPlaylists, getPlaylist, createPlaylist, deletePlaylist, addSongToPlaylist, removeSongFromPlaylist, getUserPlaylists } from '../http/playlistApi'
 
 export default class PlaylistStore {
     constructor() {
         this._playlists = []
+        this._userPlaylists = []
         this._currentPlaylist = null
         this._isLoading = false
         this._error = null
@@ -13,6 +14,10 @@ export default class PlaylistStore {
 
     get playlists() {
         return this._playlists
+    }
+
+    get userPlaylists() {
+        return this._userPlaylists
     }
 
     get currentPlaylist() {
@@ -59,6 +64,28 @@ export default class PlaylistStore {
                 this._error = e.message
             })
             console.error('Ошибка загрузки плейлистов:', e)
+        } finally {
+            runInAction(() => {
+                this._isLoading = false
+            })
+        }
+    }
+
+    fetchUserPlaylists = async (userId) => {
+        this._isLoading = true
+        this._error = null
+        try {
+            const data = await getUserPlaylists(userId)
+            runInAction(() => {
+                this._userPlaylists = data
+            })
+            return data
+        } catch (e) {
+            runInAction(() => {
+                this._error = e.message
+            })
+            console.error('Ошибка загрузки плейлистов пользователя:', e)
+            return []
         } finally {
             runInAction(() => {
                 this._isLoading = false

@@ -5,7 +5,8 @@ import path from "path"
 import fs from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import {fileURLToPath} from 'url'
-const { User, UserFollowers } = models
+import { Op } from 'sequelize'
+const { User, UserFollowers, Playlist } = models
 
 class UserController {
     async updateImg(req, res, next) {
