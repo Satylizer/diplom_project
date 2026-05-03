@@ -32,8 +32,10 @@ export default class FollowStore {
     }
 
     toggleUserFollow = async (userId) => {
-        this._isLoading = true
-        this._error = null
+        runInAction(() => {
+            this._isLoading = true
+            this._error = null
+        })
         try {
             const data = await toggleUserFollow(userId)
             runInAction(() => {
@@ -45,16 +47,22 @@ export default class FollowStore {
             })
             return { success: true, isFollowing: data.isFollowing }
         } catch (e) {
-            this._error = e.response?.data?.message || 'Ошибка подписки'
+            runInAction(() => {
+                this._error = e.response?.data?.message || 'Ошибка подписки'
+            })
             return { success: false, error: this._error }
         } finally {
-            this._isLoading = false
+            runInAction(() => {
+                this._isLoading = false
+            })
         }
     }
 
     fetchUserFollowing = async (userId) => {
-        this._isLoading = true
-        this._error = null
+        runInAction(() => {
+            this._isLoading = true
+            this._error = null
+        })
         try {
             const data = await getUserFollowing(userId)
             runInAction(() => {
@@ -62,16 +70,22 @@ export default class FollowStore {
             })
             return data
         } catch (e) {
-            this._error = e.response?.data?.message || 'Ошибка загрузки'
+            runInAction(() => {
+                this._error = e.response?.data?.message || 'Ошибка загрузки'
+            })
             return []
         } finally {
-            this._isLoading = false
+            runInAction(() => {
+                this._isLoading = false
+            })
         }
     }
 
     toggleArtistFollow = async (artistId) => {
-        this._isLoading = true
-        this._error = null
+        runInAction(() => {
+            this._isLoading = true
+            this._error = null
+        })
         try {
             const data = await toggleArtistFollow(artistId)
             runInAction(() => {
@@ -83,16 +97,22 @@ export default class FollowStore {
             })
             return { success: true, isFollowing: data.isFollowing }
         } catch (e) {
-            this._error = e.response?.data?.message || 'Ошибка подписки'
+            runInAction(() => {
+                this._error = e.response?.data?.message || 'Ошибка подписки'
+            })
             return { success: false, error: this._error }
         } finally {
-            this._isLoading = false
+            runInAction(() => {
+                this._isLoading = false
+            })
         }
     }
 
     fetchFollowingArtists = async () => {
-        this._isLoading = true
-        this._error = null
+        runInAction(() => {
+            this._isLoading = true
+            this._error = null
+        })
         try {
             const data = await getUserFollowedArtists()
             runInAction(() => {
@@ -100,10 +120,14 @@ export default class FollowStore {
             })
             return data
         } catch (e) {
-            this._error = e.response?.data?.message || 'Ошибка загрузки'
+            runInAction(() => {
+                this._error = e.response?.data?.message || 'Ошибка загрузки'
+            })
             return []
         } finally {
-            this._isLoading = false
+            runInAction(() => {
+                this._isLoading = false
+            })
         }
     }
 }

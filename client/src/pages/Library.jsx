@@ -2,18 +2,132 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar/Sidebar';
 import ProfileMenu from '../components/ProfileMenu';
 import AlbumCard from '../components/AlbumCard';
+import PlaylistCard from '../components/Playlist/PlaylistCard';
+import ArtistCard from '../components/ArtistCard';
+import UserCard from '../components/UserCard';
 import LibrarySort from '../components/Library/LibrarySort';
-import { useContext } from 'react'
-import { AlbumContext, SongContext } from '../main'
+import { useContext, useEffect } from 'react'
+import { AlbumContext, SongContext, PlaylistContext, LibraryContext, FollowContext, UserContext } from '../main'
 import { HiHeart } from 'react-icons/hi2';
+import { observer } from 'mobx-react-lite';
 
-const Library = () => {
+const Library = observer(() => {
   const navigate = useNavigate();
-
   const albumStore = useContext(AlbumContext)
   const songStore = useContext(SongContext)
-  let albumsList = [...albumStore.albums]
+  const playlistStore = useContext(PlaylistContext)
+  const libraryStore = useContext(LibraryContext)
+  const followStore = useContext(FollowContext)
+  const userStore = useContext(UserContext)
+
+  useEffect(() => {
+    const loadData = async () => {
+      await albumStore.fetchLikedAlbums()
+      
+      if (songStore.likedSongs.length === 0 && !songStore.isLoading) {
+        await songStore.fetchSongs()
+      }
+      
+      if (playlistStore.playlists.length === 0 && !playlistStore.isLoading) {
+        await playlistStore.fetchPlaylists()
+      }
+      if (followStore.followedArtists.length === 0 && !followStore.isLoading) {
+        await followStore.fetchFollowingArtists()
+      }
+      if (followStore.followedUsers.length === 0 && !followStore.isLoading) {
+        await followStore.fetchUserFollowing()
+      }
+      
+      libraryStore.setAllData(
+        albumStore.likedAlbums,
+        playlistStore.playlists,
+        followStore.followedArtists,
+        followStore.followedUsers
+      )
+    }
+    
+    loadData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userStore.user.id])
+
   const likedSongsCount = songStore.likedSongs?.length || 0
+  const displayedItems = libraryStore.filteredItems
+  const isLoading = albumStore.isLoading || playlistStore.isLoading || followStore.isLoading || songStore.isLoading
+
+  if (songStore.isLoading) {
+    return (
+      <div className="flex bg-[#121212] min-h-screen">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-[#27272A] border-t-[#2B7FFF] rounded-full animate-spin" />
+        </div>
+      </div>
+    )
+  }
+
+  const renderCard = (item) => {
+    if (item.type === 'album') {
+      return (
+        <div 
+          key={`album-${item.id}`}
+          className="bg-[rgba(255,255,255,0.05)] border border-[#27272A] hover:bg-[rgba(255,255,255,0.1)] rounded-lg p-4 transition-all cursor-pointer group"
+        >
+          <AlbumCard 
+            album={item}
+            cardSize="w-full"
+            titleSize="text-sm font-semibold"
+            artistNamesSize="text-xs text-[#9F9FA9]"
+            hasTransition={true}
+          />
+        </div>
+      )
+    } else if (item.type === 'playlist') {
+      return (
+        <div 
+          key={`playlist-${item.id}`}
+          className="bg-[rgba(255,255,255,0.05)] border border-[#27272A] hover:bg-[rgba(255,255,255,0.1)] rounded-lg p-4 transition-all cursor-pointer group"
+        >
+          <PlaylistCard 
+            playlist={item}
+            cardSize="w-full"
+            titleSize="text-sm font-semibold"
+            subtitleSize="text-xs text-[#9F9FA9]"
+            hasTransition={true}
+          />
+        </div>
+      )
+    } else if (item.type === 'artist') {
+      return (
+        <div 
+          key={`artist-${item.id}`}
+          className="bg-[rgba(255,255,255,0.05)] border border-[#27272A] hover:bg-[rgba(255,255,255,0.1)] rounded-lg p-4 transition-all cursor-pointer group"
+        >
+          <ArtistCard 
+            artist={item}
+            cardSize="w-full"
+            nameSize="text-sm font-semibold mt-2 text-center"
+            hasTransition={true}
+          />
+        </div>
+      )
+    } else if (item.type === 'user') {
+      return (
+        <div 
+          key={`user-${item.id}`}
+          className="bg-[rgba(255,255,255,0.05)] border border-[#27272A] hover:bg-[rgba(255,255,255,0.1)] rounded-lg p-4 transition-all cursor-pointer group"
+        >
+          <UserCard 
+            user={item}
+            cardSize="w-full"
+            titleSize="text-sm font-semibold"
+            subtitleSize="text-xs text-[#9F9FA9]"
+            hasTransition={true}
+          />
+        </div>
+      )
+    }
+    return null
+  }
 
   return (
     <div className="flex bg-[#121212] min-h-screen">
@@ -49,28 +163,25 @@ const Library = () => {
           
           <LibrarySort />
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {albumsList.map((album) => (
-              <div 
-                key={album.id}
-
-                className="bg-[rgba(255,255,255,0.05)] border border-[#27272A] hover:bg-[rgba(255,255,255,0.1)] rounded-lg p-4 transition-all cursor-pointer group"
-              >
-                <AlbumCard 
-                  album={album}
-                  cardSize="w-full"
-                  titleSize="text-sm font-semibold"
-                  artistNamesSize="text-xs text-[#9F9FA9]"
-                  hasTransition={true}
-                />
-              </div>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <div className="w-12 h-12 border-4 border-[#27272A] border-t-[#2B7FFF] rounded-full animate-spin" />
+            </div>
+          ) : displayedItems.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-[#9F9FA9] text-lg">Nothing found</p>
+              <p className="text-[#71717B] text-sm mt-2">Try changing the filter</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {displayedItems.map(renderCard)}
+            </div>
+          )}
           
         </div>
       </div>
     </div>
   )
-}
+})
 
 export default Library

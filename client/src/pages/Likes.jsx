@@ -18,6 +18,7 @@ const Likes = observer(() => {
     if (likedSongs.length === 0 && !songStore.isLoading) {
       songStore.fetchSongs()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userStore.user?.id])
 
   if (songStore.isLoading) {
@@ -52,7 +53,7 @@ const Likes = observer(() => {
 
         <div className="relative z-10 px-12 pt-20">
           <div className="flex items-end gap-8 pb-6">
-            <div className="size-48 shrink-0 bg-gradient-to-br from-[#2B7FFF] to-[#1A5BE7] rounded-lg flex items-center justify-center shadow-2xl">
+            <div className="size-48 shrink-0 bg-linear-to-br from-[#2B7FFF] to-[#1A5BE7] rounded-lg flex items-center justify-center shadow-2xl">
               <HiHeart className="size-24 text-white fill-white" />
             </div>
 

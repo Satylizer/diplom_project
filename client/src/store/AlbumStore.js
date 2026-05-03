@@ -97,18 +97,25 @@ export default class AlbumStore {
         try {
             const data = await toggleAlbumLike(albumId)
             
-            if (this._currentAlbum && this._currentAlbum.id === albumId) {
-                runInAction(() => {
+            runInAction(() => {
+                if (this._currentAlbum && this._currentAlbum.id === albumId) {
                     this._currentAlbum.isLiked = data.isLiked
-                })
-            }
-            
-            const album = this._albums.find(a => a.id === albumId)
-            if (album) {
-                runInAction(() => {
+                }
+                
+                const album = this._albums.find(a => a.id === albumId)
+                if (album) {
                     album.isLiked = data.isLiked
-                })
-            }
+                }
+                
+                if (data.isLiked) {
+                    const likedAlbum = this._albums.find(a => a.id === albumId)
+                    if (likedAlbum && !this._likedAlbums.find(a => a.id === albumId)) {
+                        this._likedAlbums.push({ ...likedAlbum, isLiked: true })
+                    }
+                } else {
+                    this._likedAlbums = this._likedAlbums.filter(a => a.id !== albumId)
+                }
+            })
             
             return data
         } catch (e) {
