@@ -13,9 +13,7 @@ const AlbumPage = observer(() => {
   const [isLiked, setIsLiked] = useState(false)
 
   useEffect(() => {
-    if (id && albumStore.currentAlbum?.id !== parseInt(id)) {
       albumStore.fetchAlbum(id)
-    }
   }, [id, albumStore])
 
   useEffect(() => {
@@ -112,18 +110,18 @@ const AlbumPage = observer(() => {
           </div>
 
           <div className="flex items-center gap-6 pl-4">
-            <button className="size-15 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-[#2B7FFF]/20">
-              <FaPlay className="text-white text-2xl ml-1" />
+            <button className="size-14 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all cursor-pointer shadow-lg">
+              <FaPlay className="text-black text-lg ml-1" />
             </button>
             <button 
               onClick={handleToggleLike}
               className={`size-9 rounded-full flex items-center justify-center transition-all ${
                 isLiked 
-                  ? 'bg-[#2B7FFF] text-white hover:bg-[#2B7FFF]/80' 
-                  : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm'
+                  ? 'bg-[#2B7FFF] text-white hover:bg-[#3B8FFF]' 
+                  : 'bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm'
               }`}
             >
-              {isLiked ? <FaCheck className="text-white text-sm" /> : <FaPlus className="text-white text-sm" />}
+              {isLiked ? <FaCheck className="text-black text-sm" /> : <FaPlus className="text-white text-sm" />}
             </button>
           </div>
         </div>

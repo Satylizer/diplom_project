@@ -8,3 +8,30 @@
 *::-webkit-scrollbar {
   display: none;
 }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #3f3f46;
+  border-radius: 9999px;
+  height: 4px;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  opacity: 1;
+}

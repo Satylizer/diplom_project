@@ -6,9 +6,10 @@ import PlaylistCard from '../components/Playlist/PlaylistCard';
 import ArtistCard from '../components/ArtistCard';
 import UserCard from '../components/UserCard';
 import LibrarySort from '../components/Library/LibrarySort';
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AlbumContext, SongContext, PlaylistContext, LibraryContext, FollowContext, UserContext } from '../main'
 import { HiHeart } from 'react-icons/hi2';
+import { FaPlay } from 'react-icons/fa'
 import { observer } from 'mobx-react-lite';
 
 const Library = observer(() => {
@@ -19,24 +20,18 @@ const Library = observer(() => {
   const libraryStore = useContext(LibraryContext)
   const followStore = useContext(FollowContext)
   const userStore = useContext(UserContext)
+  const [dataLoaded, setDataLoaded] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
-      await albumStore.fetchLikedAlbums()
-      
-      if (songStore.likedSongs.length === 0 && !songStore.isLoading) {
-        await songStore.fetchSongs()
-      }
-      
-      if (playlistStore.playlists.length === 0 && !playlistStore.isLoading) {
-        await playlistStore.fetchPlaylists()
-      }
-      if (followStore.followedArtists.length === 0 && !followStore.isLoading) {
-        await followStore.fetchFollowingArtists()
-      }
-      if (followStore.followedUsers.length === 0 && !followStore.isLoading) {
-        await followStore.fetchUserFollowing()
-      }
+      // Загружаем всё параллельно
+      await Promise.all([
+        albumStore.fetchLikedAlbums(),
+        songStore.fetchSongs(),
+        playlistStore.fetchPlaylists(),
+        followStore.fetchFollowingArtists(),
+        followStore.fetchUserFollowing()
+      ])
       
       libraryStore.setAllData(
         albumStore.likedAlbums,
@@ -44,6 +39,7 @@ const Library = observer(() => {
         followStore.followedArtists,
         followStore.followedUsers
       )
+      setDataLoaded(true)
     }
     
     loadData()
@@ -52,9 +48,9 @@ const Library = observer(() => {
 
   const likedSongsCount = songStore.likedSongs?.length || 0
   const displayedItems = libraryStore.filteredItems
-  const isLoading = albumStore.isLoading || playlistStore.isLoading || followStore.isLoading || songStore.isLoading
+  const isLoading = !dataLoaded
 
-  if (songStore.isLoading) {
+  if (isLoading) {
     return (
       <div className="flex bg-[#121212] min-h-screen">
         <Sidebar />
@@ -121,7 +117,7 @@ const Library = observer(() => {
             cardSize="w-full"
             titleSize="text-sm font-semibold"
             subtitleSize="text-xs text-[#9F9FA9]"
-            hasTransition={true}
+            hasOverlay={false}
           />
         </div>
       )
@@ -145,7 +141,7 @@ const Library = observer(() => {
             onClick={() => navigate('/likes')}
             className="mb-8 cursor-pointer group"
           >
-            <div className="bg-linear-to-br from-[#2B7FFF] to-[#1447E6] rounded-lg p-6 flex items-center gap-6 hover:brightness-110 transition-all">
+            <div className="bg-linear-to-br from-[#2B7FFF]/80 to-[#1447E6]/70 rounded-lg p-6 flex items-center gap-6 hover:brightness-105 transition-all">
               <div className="size-20 bg-linear-to-br from-white/20 to-white/5 rounded-md flex items-center justify-center">
                 <HiHeart className="size-10 text-white fill-white" />
               </div>
@@ -153,21 +149,15 @@ const Library = observer(() => {
                 <h2 className="text-white text-[28px] font-medium tracking-[-0.7px] mb-1">Liked Songs</h2>
                 <p className="text-white/80 text-sm">{likedSongsCount} tracks you've saved</p>
               </div>
-              <button className="bg-white rounded-full size-14 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                <svg className="size-6 ml-1 fill-black text-black" viewBox="0 0 24 24">
-                  <polygon points="6 3 20 12 6 21 6 3" />
-                </svg>
-              </button>
+                <button className="bg-white/20 backdrop-blur-sm rounded-full size-14 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105 cursor-pointer">
+                  <FaPlay className="size-5 text-black ml-0.5" />
+                </button>
             </div>
           </div>
           
           <LibrarySort />
           
-          {isLoading ? (
-            <div className="flex justify-center py-20">
-              <div className="w-12 h-12 border-4 border-[#27272A] border-t-[#2B7FFF] rounded-full animate-spin" />
-            </div>
-          ) : displayedItems.length === 0 ? (
+          {displayedItems.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-[#9F9FA9] text-lg">Nothing found</p>
               <p className="text-[#71717B] text-sm mt-2">Try changing the filter</p>

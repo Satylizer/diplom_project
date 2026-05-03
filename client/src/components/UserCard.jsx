@@ -4,18 +4,12 @@ import { FaUserCircle } from 'react-icons/fa'
 
 const UserCard = ({ 
   user,
-  cardSize, 
-  titleSize, 
-  subtitleSize,
-  hasTransition = true, 
-  hasOverlay = false,
+  cardSize = "w-full",
+  titleSize = "text-sm font-semibold mt-2",
+  hasOverlay = true,
   inlineView = false,
 }) => {
   const navigate = useNavigate()
-
-  const animationClass = hasTransition && !inlineView
-    ? 'transition-transform duration-300 group-hover:scale-105 will-change-transform' 
-    : ''
 
   const handleClick = () => {
     navigate(`/user/${user.id}`)
@@ -51,6 +45,37 @@ const UserCard = ({
     )
   }
 
+  if (!hasOverlay) {
+    return (
+      <div 
+        onClick={handleClick}
+        className={`cursor-pointer w-full group ${cardSize}`}
+      >
+        <div className="w-full pb-[100%] relative mb-3">
+          <div className="absolute inset-0 rounded-full bg-linear-to-br from-teal-400 to-cyan-600 overflow-hidden">
+            {user.img ? (
+              <img 
+                src={`${import.meta.env.VITE_API_URL}/${user.img}`} 
+                alt={user.username} 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <FaUserCircle className="w-1/2 h-1/2 text-white/40" />
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="text-center">
+          <h4 className={`text-white font-semibold truncate ${titleSize}`}>
+            {user.username}
+          </h4>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div 
       onClick={handleClick}
@@ -62,12 +87,7 @@ const UserCard = ({
             <img 
               src={`${import.meta.env.VITE_API_URL}/${user.img}`} 
               alt={user.username} 
-              className={`w-full h-full object-cover ${animationClass}`}
-              style={{
-                backfaceVisibility: 'hidden',
-                transform: 'translateZ(0)',
-                WebkitBackfaceVisibility: 'hidden'
-              }}
+              className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -76,21 +96,13 @@ const UserCard = ({
           )}
         </div>
         
-        <div className="text-center lg:text-left">
-          <h4 className={`text-white font-semibold truncate ${titleSize || 'text-sm'}`}>
+        <div className="text-center">
+          <h4 className={`text-white font-semibold truncate ${titleSize}`}>
             {user.username}
           </h4>
-          
-          {user.email && (
-            <p className={`text-[#9F9FA9] truncate ${subtitleSize || 'text-xs'}`}>
-              {user.email}
-            </p>
-          )}
         </div>
 
-        {hasOverlay && (
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition duration-300 pointer-events-none rounded-lg" />
-        )}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition duration-300 pointer-events-none rounded-lg" />
       </div>
     </div>
   )

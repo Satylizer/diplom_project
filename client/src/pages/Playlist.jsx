@@ -121,15 +121,15 @@ const PlaylistPage = observer(() => {
           <div className="flex items-center gap-4 mb-6">
             <button 
               onClick={handlePlayAll}
-              className="size-12 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-[#2B7FFF]/20"
+              className="size-14 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all cursor-pointer shadow-lg"
             >
-              <FaPlay className="text-white text-sm ml-0.5" />
+              <FaPlay className="text-black text-lg ml-0.5" />
             </button>
           </div>
           <SongGrid 
             songs={playlistSongs}
             showAlbum={true}
-            playlistId={parseInt(id)} // Передаем ID плейлиста
+            playlistId={parseInt(id)}
           />
         </div>
       </div>

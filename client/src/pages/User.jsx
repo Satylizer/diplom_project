@@ -16,7 +16,7 @@ const UserPage = observer(() => {
   
   const [isFollowing, setIsFollowing] = useState(false)
   const [followersCount, setFollowersCount] = useState(0)
-  const [followingCount, setFollowingCount] = useState(0)
+  const [followingCount, setFollowingCount] = useState(0) 
 
   const user = userStore.targetUser
   const isLoading = userStore.isTargetLoading
@@ -81,14 +81,6 @@ const UserPage = observer(() => {
       
       <div className="flex-1 flex flex-col h-screen overflow-y-auto">
         <div className="relative">
-          <div 
-            className="absolute top-0 left-0 right-0 h-96 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: user.img ? `url(${import.meta.env.VITE_API_URL}/${user.img})` : 'none',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center 30%'
-            }}
-          />
           <div className="absolute top-0 left-0 right-0 h-96 bg-linear-to-b from-teal-500/60 via-teal-500/30 to-[#121212]" />
           
           <div className="relative z-10">

@@ -6,7 +6,6 @@ const { Album, Artist, Song, AlbumLikes, User } = models
 class AlbumController {
     async getAll(req, res, next) {
         try {
-            console.log('getAll called') // 👈 ДОБАВЬ
             const albums = await Album.findAll({
                 include: [{
                     model: Artist,
@@ -14,10 +13,8 @@ class AlbumController {
                 }],
                 order: [['releaseDate', 'DESC']]
             })
-            console.log('albums loaded:', albums.length) // 👈 ДОБАВЬ
             return res.json(albums)
         } catch (e) {
-            console.error('ERROR in getAll:', e) // 👈 ЭТО ВАЖНО
             next(ApiError.internal(`Ошибка: ${e.message}`))
         }
     }

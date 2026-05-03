@@ -3,6 +3,7 @@ import AppRouter from "./components/AppRouter"
 import { BrowserRouter } from "react-router-dom"
 import { useContext, useEffect } from "react"
 import { UserContext } from "./main"
+import Player from "./components/Player"
 
 
 const App = observer(() => {
@@ -28,7 +29,12 @@ const App = observer(() => {
         )
     }
 
-    return ( <AppRouter /> )
+    return ( 
+        <>
+            <AppRouter />
+            <Player />
+        </>
+    )
 })
 
 export default App

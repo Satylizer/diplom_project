@@ -96,7 +96,13 @@ export default class LibraryStore {
                 const allAlbums = [...this._likedAlbums].map(item => ({ ...item, type: 'album' }))
                 const allPlaylists = [...this._allPlaylists].map(item => ({ ...item, type: 'playlist' }))
                 const allArtists = [...this._followedArtists].map(item => ({ ...item, type: 'artist' }))
-                items = [...allAlbums, ...allPlaylists, ...allArtists]
+                const allUsers = [...this._followedUsers].map(item => ({ 
+                    ...item, 
+                    type: 'user',
+                    name: item.username
+                }))
+                items = [...allAlbums, ...allPlaylists, ...allArtists, ...allUsers]
+                break
             }
         }
 

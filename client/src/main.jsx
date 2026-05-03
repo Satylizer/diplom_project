@@ -13,6 +13,8 @@ import ProfileStore from './store/ProfileStore.js'
 import PlaylistStore from './store/PlaylistStore.js'
 import UserStore from './store/UserStore.js'
 import FollowStore from './store/FollowStore.js'
+import { AudioPlayerProvider } from 'wavesurf'
+import 'wavesurf/styles.css'
 
 export const UserContext = createContext(null)
 export const AlbumContext = createContext(null)
@@ -28,27 +30,29 @@ export const FollowContext = createContext(null)
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <UserContext.Provider value={new UserStore()}>
-        <AlbumContext.Provider value={new AlbumStore()}>
-          <SearchContext.Provider value={new SearchStore()}>
-            <ArtistContext.Provider value={new ArtistStore()}>
-              <SongContext.Provider value={new SongStore()}>
-                <LibraryContext.Provider value={new LibraryStore()}>
-                  <HistoryContext.Provider value={new HistoryStore()}>
-                    <ProfileContext.Provider value={new ProfileStore()}>
-                      <PlaylistContext.Provider value={new PlaylistStore()}>
-                        <FollowContext.Provider value={new FollowStore()}>
-                          <App />
-                        </FollowContext.Provider>
-                      </PlaylistContext.Provider>
-                    </ProfileContext.Provider>
-                  </HistoryContext.Provider>
-                </LibraryContext.Provider>
-              </SongContext.Provider>
-            </ArtistContext.Provider>
-          </SearchContext.Provider>
-        </AlbumContext.Provider>
-      </UserContext.Provider>
+      <AudioPlayerProvider>
+        <UserContext.Provider value={new UserStore()}>
+          <AlbumContext.Provider value={new AlbumStore()}>
+            <SearchContext.Provider value={new SearchStore()}>
+              <ArtistContext.Provider value={new ArtistStore()}>
+                <SongContext.Provider value={new SongStore()}>
+                  <LibraryContext.Provider value={new LibraryStore()}>
+                    <HistoryContext.Provider value={new HistoryStore()}>
+                      <ProfileContext.Provider value={new ProfileStore()}>
+                        <PlaylistContext.Provider value={new PlaylistStore()}>
+                          <FollowContext.Provider value={new FollowStore()}>
+                            <App />
+                          </FollowContext.Provider>
+                        </PlaylistContext.Provider>
+                      </ProfileContext.Provider>
+                    </HistoryContext.Provider>
+                  </LibraryContext.Provider>
+                </SongContext.Provider>
+              </ArtistContext.Provider>
+            </SearchContext.Provider>
+          </AlbumContext.Provider>
+        </UserContext.Provider>
+      </AudioPlayerProvider>
     </BrowserRouter>
   </StrictMode>
 )
