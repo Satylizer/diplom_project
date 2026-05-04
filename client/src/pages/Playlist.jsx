@@ -4,12 +4,14 @@ import { observer } from 'mobx-react-lite'
 import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import SongGrid from '../components/Song/SongGrid'
-import { PlaylistContext } from '../main'
+import { PlaylistContext, PlayerContext } from '../main'
 import { FaPlay, FaTrash } from 'react-icons/fa'
+import { BsPauseFill } from 'react-icons/bs'
 
 const PlaylistPage = observer(() => {
   const { id } = useParams()
   const playlistStore = useContext(PlaylistContext)
+  const playerStore = useContext(PlayerContext)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   useEffect(() => {
@@ -18,25 +20,39 @@ const PlaylistPage = observer(() => {
     }
   }, [id, playlistStore])
 
+  useEffect(() => {
+    if (playlistStore.currentPlaylist?.songs?.length > 0) {
+      playerStore.setSelectedPlaylist(playlistStore.currentPlaylist.songs)
+    }
+  }, [playlistStore.currentPlaylist, playerStore])
+
   const playlist = playlistStore.currentPlaylist
   const loading = playlistStore.isLoading
   const playlistSongs = playlist?.songs || []
   const songCount = playlistStore.songCount
   const totalDuration = playlistStore.totalDuration
 
+  const isPlayingThisPlaylist = playerStore.currentPlaylist === playlistSongs && playerStore.isPlaying
+
+  const handlePlayAll = () => {
+    if (playlistSongs.length === 0) return
+    
+    if (playerStore.currentPlaylist === playlistSongs && playerStore.isPlaying) {
+      playerStore.toggle()
+      return
+    }
+    
+    if (playerStore.currentPlaylist === playlistSongs && !playerStore.isPlaying) {
+      playerStore.toggle()
+      return
+    }
+    
+    playerStore.playSelectedPlaylist()
+  }
+
   const handleDelete = async () => {
     await playlistStore.deletePlaylist(playlist.id)
     window.location.href = '/profile'
-  }
-
-  const handlePlayAll = () => {
-    if (playlistSongs.length > 0) {
-      const songStore = playlistStore.songStore
-      if (songStore) {
-        songStore.setCurrentPlaylist(playlistSongs)
-        songStore.playSong(playlistSongs[0].id)
-      }
-    }
   }
 
   if (loading) {
@@ -62,7 +78,7 @@ const PlaylistPage = observer(() => {
   }
 
   return (
-    <div className="flex bg-black min-h-screen text-white font-sans">
+    <div className="flex bg-[#121212] min-h-screen text-white font-sans">
       <Sidebar />
       
       <div className="flex-1 flex flex-col h-screen overflow-y-auto">
@@ -123,7 +139,11 @@ const PlaylistPage = observer(() => {
               onClick={handlePlayAll}
               className="size-14 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all cursor-pointer shadow-lg"
             >
-              <FaPlay className="text-black text-lg ml-0.5" />
+              {isPlayingThisPlaylist ? (
+                <BsPauseFill className="text-black text-2xl" />
+              ) : (
+                <FaPlay className="text-black text-lg ml-0.5" />
+              )}
             </button>
           </div>
           <SongGrid 

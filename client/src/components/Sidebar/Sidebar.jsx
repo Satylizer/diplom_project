@@ -10,9 +10,9 @@ import SidebarNavLink from './SidebarNavLink';
 
 const Sidebar = () => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 lg:top-0 lg:sticky lg:w-64 bg-[#09090b] border-t lg:border-r border-[#27272A] flex flex-row lg:flex-col justify-around lg:justify-start items-center lg:items-stretch h-auto lg:h-screen z-40 p-2 lg:p-6 transition-all duration-300">
+    <div className="fixed bottom-0 left-0 right-0 lg:top-0 lg:sticky lg:w-64 bg-[#0d0d0f] border-t lg:border-r border-[#27272A] flex flex-row lg:flex-col justify-around lg:justify-start items-center lg:items-stretch h-auto lg:h-screen z-40 p-2 lg:p-6 transition-all duration-300">
 
-      <NavLink 
+      <NavLink
         to="/" 
         className="hidden lg:flex items-center gap-2 mb-10 hover:opacity-80 transition-opacity duration-200"
       >

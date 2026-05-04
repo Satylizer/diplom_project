@@ -1,9 +1,9 @@
 import SongCard from './SongCard'
 import { HiOutlineClock, HiOutlineMusicalNote } from 'react-icons/hi2'
+import { PlayerContext } from '../../main'
 
 const SongGrid = ({
   songs = [],
-  onPlay,
   showHeader = true,
   showAlbum = true,
   playlistId = null
@@ -46,7 +46,6 @@ const SongGrid = ({
             key={song.id}
             songId={song.id}
             index={idx + 1}
-            onPlay={onPlay}
             showAlbum={showAlbum}
             playlistId={playlistId}
           />

@@ -44,7 +44,7 @@ const Profile = observer(() => {
   }
 
   return (
-    <div className="flex bg-black min-h-screen text-white font-sans">
+    <div className="flex bg-[#121212] min-h-screen text-white font-sans">
       <Sidebar />
       
       <div className="flex-1 flex flex-col h-screen overflow-y-auto">

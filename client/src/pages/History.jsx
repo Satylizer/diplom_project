@@ -12,7 +12,7 @@ const History = observer(() => {
 
     useEffect(() => {
         historyStore.fetchHistory()
-    }, [historyStore, userStore.user.id])
+    }, [historyStore, userStore.user?.id])
 
     if (historyStore.isLoading) {
         return (
@@ -24,6 +24,8 @@ const History = observer(() => {
             </div>
         )
     }
+
+    const historySongs = historyStore.history?.map(item => item.song).filter(song => song) || []
 
     return (
         <div className="flex bg-[#121212] min-h-screen text-white overflow-hidden">
@@ -47,7 +49,7 @@ const History = observer(() => {
                         </div>
                     </div>
 
-                    {historyStore.history?.length === 0 ? (
+                    {historySongs.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-center">
                             <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-4">
                                 <FaClock className="w-10 h-10 text-white/40" />
@@ -56,7 +58,7 @@ const History = observer(() => {
                             <p className="text-[#9F9FA9] text-sm">Start listening to music to see your history here</p>
                         </div>
                     ) : (
-                        <SongGrid songs={historyStore.history.map(item => item.song)} showAlbum={true} />
+                        <SongGrid songs={historySongs} showAlbum={true} />
                     )}
                 </div>
             </div>  

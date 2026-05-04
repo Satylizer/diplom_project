@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { SongContext, PlaylistContext } from '../../main'
+import { SongContext, PlaylistContext, PlayerContext } from '../../main'
 import { BsPlayFill, BsPauseFill, BsThreeDots } from 'react-icons/bs'
 import { HiOutlineHeart, HiHeart } from 'react-icons/hi'
 import { observer } from 'mobx-react-lite'
@@ -16,12 +16,12 @@ const SongCard = observer(({
   index,
   showAlbum = true,
   hasTransition = true,
-  onPlay,
   inlineView = false,
   playlistId = null
 }) => {
   const songStore = useContext(SongContext)
   const playlistStore = useContext(PlaylistContext)
+  const playerStore = useContext(PlayerContext)
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false)
 
   useEffect(() => {
@@ -31,14 +31,34 @@ const SongCard = observer(({
     if (playlistStore.playlists.length === 0 && !playlistStore.isLoading) {
       playlistStore.fetchPlaylists()
     }
-  }, [songStore, playlistStore])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const song = songStore.songs.find(s => s.id === songId)
-  const isPlaying = songStore.currentSong?.id === songId
-  
+  const isCurrentTrack = playerStore.currentSong?.id === songId
+  const isPlaying = isCurrentTrack && playerStore.isPlaying
+
   if (!song) return null
 
   const animationClass = hasTransition && !inlineView ? 'transition-all duration-200' : ''
+    
+  const handlePlayPause = (e) => {
+    e?.stopPropagation()
+    
+    if (playerStore.currentSong?.id === song.id && playerStore.isPlaying) {
+      playerStore.toggle()
+      return
+    }
+
+    if (playerStore.currentSong?.id === song.id && !playerStore.isPlaying) {
+      playerStore.toggle()
+      return
+    }
+    
+    playerStore.setCurrentPlaylist([song])
+    playerStore.setCurrentIndex(0)
+    playerStore.toggle()
+  }
 
   const handleLike = (e) => {
     e.stopPropagation()
@@ -138,21 +158,33 @@ const SongCard = observer(({
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center">
-            <button 
-              onClick={onPlay}
-              className="opacity-0 group-hover:opacity-100 transition text-white cursor-pointer"
-            >
-              {isPlaying ? (
-                <BsPauseFill className="w-6 h-6" />
-              ) : (
+            {isPlaying ? (
+              <button onClick={handlePlayPause} className="text-white cursor-pointer">
+                <BsPauseFill className="w-6 h-6 text-[#2B7FFF]" />
+              </button>
+            ) : (
+              <button 
+                onClick={handlePlayPause}
+                className="opacity-0 group-hover:opacity-100 transition text-white cursor-pointer"
+              >
                 <BsPlayFill className="w-6 h-6" />
-              )}
-            </button>
+              </button>
+            )}
           </div>
+          {isCurrentTrack && !isPlaying && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none">
+              <BsPlayFill className="w-6 h-6 text-white" />
+            </div>
+          )}
+          {isPlaying && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none">
+              <BsPauseFill className="w-6 h-6 text-white" />
+            </div>
+          )}
         </div>
         
         <div className="flex-1 min-w-0">
-          <h4 className={`font-normal truncate text-base ${isPlaying ? 'text-[#2B7FFF]' : 'text-white'}`}>
+          <h4 className={`font-normal truncate text-base ${isCurrentTrack ? 'text-[#2B7FFF]' : 'text-white'}`}>
             {song.name}
           </h4>
           <p className="text-[#a1a1aa] text-sm truncate">
@@ -197,12 +229,12 @@ const SongCard = observer(({
     <div className={`group relative grid grid-cols-12 gap-4 px-4 py-1.5 rounded-md hover:bg-white/10 cursor-pointer ${animationClass}`}>
       
       <div className="col-span-1 flex items-center justify-start relative">
-        <span className={`text-[#a1a1aa] text-base pl-2 font-normal w-8 text-left transition-opacity ${!isPlaying ? 'group-hover:opacity-0' : 'opacity-0'}`}>
+        <span className="text-[#a1a1aa] text-base pl-2 font-normal w-8 text-left transition-opacity group-hover:opacity-0">
           {index}
         </span>
         <button 
-          onClick={onPlay} 
-          className={`absolute left-0 text-white items-center justify-center transition-all cursor-pointer ${isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+          onClick={handlePlayPause}
+          className="absolute left-0 text-white items-center justify-center transition-all cursor-pointer opacity-0 group-hover:opacity-100"
         >
           {isPlaying ? (
             <BsPauseFill className="w-7 h-7 text-[#2B7FFF]" />
@@ -221,7 +253,7 @@ const SongCard = observer(({
           />
         )}
         <div className="flex flex-col justify-center min-w-0 flex-1">
-          <h4 className={`font-normal truncate text-base ${isPlaying ? 'text-[#2B7FFF]' : 'text-white'}`}>
+          <h4 className={`font-normal truncate text-base ${isCurrentTrack ? 'text-[#2B7FFF]' : 'text-white'}`}>
             {song.name}
           </h4>
           <div className="flex items-center gap-1 flex-wrap">

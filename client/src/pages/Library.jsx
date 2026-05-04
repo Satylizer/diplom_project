@@ -141,7 +141,7 @@ const Library = observer(() => {
             onClick={() => navigate('/likes')}
             className="mb-8 cursor-pointer group"
           >
-            <div className="bg-linear-to-br from-[#2B7FFF]/80 to-[#1447E6]/70 rounded-lg p-6 flex items-center gap-6 hover:brightness-105 transition-all">
+            <div className="bg-linear-to-br from-[#2B7FFF] to-[#1447E6] rounded-lg p-6 flex items-center gap-6 hover:brightness-105 transition-all">
               <div className="size-20 bg-linear-to-br from-white/20 to-white/5 rounded-md flex items-center justify-center">
                 <HiHeart className="size-10 text-white fill-white" />
               </div>
@@ -149,8 +149,8 @@ const Library = observer(() => {
                 <h2 className="text-white text-[28px] font-medium tracking-[-0.7px] mb-1">Liked Songs</h2>
                 <p className="text-white/80 text-sm">{likedSongsCount} tracks you've saved</p>
               </div>
-                <button className="bg-white/20 backdrop-blur-sm rounded-full size-14 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105 cursor-pointer">
-                  <FaPlay className="size-5 text-black ml-0.5" />
+                <button className="bg-white/20 backdrop-blur-sm rounded-full size-14 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer">
+                  <FaPlay className="size-5 text-white ml-0.5" />
                 </button>
             </div>
           </div>

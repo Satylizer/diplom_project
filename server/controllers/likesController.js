@@ -38,7 +38,10 @@ class LikesController {
     async getAll(req, res) {
         const userId = req.user.id
 
-        const likes = await Likes.findAll({where:{userId}})
+        const likes = await Likes.findAll({
+            where: { userId },
+            order: [['createdAt', 'DESC']]
+        })
         return res.json(likes)
     }
 }

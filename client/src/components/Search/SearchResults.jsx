@@ -85,7 +85,7 @@ const SearchResults = observer(({ searchStore }) => {
           if (result.type === 'user') {
             return <UserCard key={uniqueKey} user={result} inlineView={true} />
           }
-          return <SongCard key={uniqueKey} songId={result.id} inlineView={true} onPlay={() => {}} />
+          return <SongCard key={uniqueKey} songId={result.id} inlineView={true} />
         })}
       </div>
     </div>

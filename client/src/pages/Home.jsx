@@ -11,20 +11,24 @@ const Home = observer(() => {
   const artistStore = useContext(ArtistContext)
   const songStore = useContext(SongContext)
   const userStore = useContext(UserContext)
-  
-  const isLoading = albumStore.isLoading || artistStore.isLoading || songStore.isLoading
+
   const albumsList = albumStore.albums || []
 
   useEffect(() => {
-    if (albumsList.length === 0 && !albumStore.isLoading) {
-      albumStore.fetchAlbums()
-    }
-    if (artistStore.artists.length === 0 && !artistStore.isLoading) {
-      artistStore.fetchArtists()
-    }
-    if (songStore.songs.length === 0 && !songStore.isLoading) {
-      songStore.fetchSongs()
-    }
+    const loadInitialData = async () => {
+          // Загружаем только если данные пустые и не в процессе загрузки
+          if (albumsList.length === 0 && !albumStore.isLoading) {
+            await albumStore.fetchAlbums()
+          }
+          if (artistStore.artists.length === 0 && !artistStore.isLoading) {
+            await artistStore.fetchArtists()
+          }
+          if (songStore.songs.length === 0 && !songStore.isLoading) {
+            await songStore.fetchSongs()
+          }
+        }
+    
+    loadInitialData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userStore.user.id])
 
@@ -40,7 +44,7 @@ const Home = observer(() => {
     return albumsList.slice(12, 18)
   }
 
-  if (isLoading) {
+  if (albumStore.isLoading || artistStore.isLoading ) {
     return (
       <div className="flex bg-linear-to-b from-[#1A1A1A] to-[#121212] min-h-screen">
         <Sidebar />

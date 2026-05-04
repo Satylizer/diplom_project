@@ -9,6 +9,10 @@
   display: none;
 }
 
+.overflow-y-auto {
+  padding-bottom: 90px;
+}
+
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -34,4 +38,14 @@ input[type="range"]::-webkit-slider-thumb {
 
 input[type="range"]:hover::-webkit-slider-thumb {
   opacity: 1;
+}
+
+input[type="range"].volume {
+  width: 96px;
+}
+
+input[type="range"].volume::-webkit-slider-thumb {
+  opacity: 1;
+  width: 10px;
+  height: 10px;
 }

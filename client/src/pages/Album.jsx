@@ -4,16 +4,18 @@ import { observer } from 'mobx-react-lite'
 import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import SongGrid from '../components/Song/SongGrid'
-import { AlbumContext } from '../main'
+import { AlbumContext, PlayerContext } from '../main'
 import { FaPlay, FaPlus, FaCheck } from 'react-icons/fa'
+import { BsPauseFill } from 'react-icons/bs'
 
 const AlbumPage = observer(() => {
   const { id } = useParams()
   const albumStore = useContext(AlbumContext)
+  const playerStore = useContext(PlayerContext)
   const [isLiked, setIsLiked] = useState(false)
 
   useEffect(() => {
-      albumStore.fetchAlbum(id)
+    albumStore.fetchAlbum(id)
   }, [id, albumStore])
 
   useEffect(() => {
@@ -21,6 +23,12 @@ const AlbumPage = observer(() => {
       setIsLiked(albumStore.currentAlbum.isLiked || false)
     }
   }, [albumStore.currentAlbum])
+
+  useEffect(() => {
+    if (albumStore.currentAlbum?.songs?.length > 0) {
+      playerStore.setSelectedPlaylist(albumStore.currentAlbum.songs)
+    }
+  }, [albumStore.currentAlbum, playerStore])
 
   const handleToggleLike = async () => {
     const result = await albumStore.toggleLike(id)
@@ -31,9 +39,27 @@ const AlbumPage = observer(() => {
   const loading = albumStore.isLoading
   const albumSongs = album?.songs || album?.tracks || []
 
+  const isPlayingThisPlaylist = playerStore.currentPlaylist === albumSongs && playerStore.isPlaying
+
+  const handlePlayAll = () => {
+    if (albumSongs.length === 0) return
+    
+    if (playerStore.currentPlaylist === albumSongs && playerStore.isPlaying) {
+      playerStore.toggle()
+      return
+    }
+    
+    if (playerStore.currentPlaylist === albumSongs && !playerStore.isPlaying) {
+      playerStore.toggle()
+      return
+    }
+    
+    playerStore.playSelectedPlaylist()
+  }
+
   if (loading) {
     return (
-      <div className="flex bg-[#09090B] min-h-screen">
+      <div className="flex bg-[#09090b] min-h-screen">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="w-12 h-12 border-4 border-[#27272A] border-t-[#2B7FFF] rounded-full animate-spin" />
@@ -44,7 +70,7 @@ const AlbumPage = observer(() => {
 
   if (!album) {
     return (
-      <div className="flex bg-[#09090B] min-h-screen">
+      <div className="flex bg-[#09090b] min-h-screen">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <p className="text-white">Album not found</p>
@@ -110,8 +136,15 @@ const AlbumPage = observer(() => {
           </div>
 
           <div className="flex items-center gap-6 pl-4">
-            <button className="size-14 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all cursor-pointer shadow-lg">
-              <FaPlay className="text-black text-lg ml-1" />
+            <button 
+              onClick={handlePlayAll}
+              className="size-14 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all cursor-pointer shadow-lg"
+            >
+              {isPlayingThisPlaylist ? (
+                <BsPauseFill className="text-black text-2xl" />
+              ) : (
+                <FaPlay className="text-black text-lg ml-1" />
+              )}
             </button>
             <button 
               onClick={handleToggleLike}

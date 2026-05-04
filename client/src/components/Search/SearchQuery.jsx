@@ -45,7 +45,7 @@ const SearchQuery = observer(() => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchStore.activeFilter])
 
-  const isLoading = albumStore.isLoading || artistStore.isLoading || songStore.isLoading || userStore.isLoading
+  const isLoading = albumStore.isLoading || artistStore.isLoading || userStore.isLoading
 
   if (isLoading) {
     return (

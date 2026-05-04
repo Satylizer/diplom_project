@@ -5,7 +5,7 @@ import { getLikedSongs, toggleLike } from '../http/likesApi'
 export default class SongStore {
     constructor() {
         this._songs = []
-        this._currentSong = null
+        this._likedSongsOrder = []
         this._likedIds = new Set()
         this._isLoading = false
         this._error = null
@@ -19,21 +19,17 @@ export default class SongStore {
         }))
     }
 
-    get currentSong() {
-        if (!this._currentSong) return null
-        return {
-            ...this._currentSong,
-            isLiked: this._likedIds.has(this._currentSong.id)
-        }
-    }
-
     get likedSongs() {
-        return this._songs
-            .filter(song => this._likedIds.has(song.id))
-            .map(song => ({
-                ...song,
-                isLiked: true
-            }))
+        return this._likedSongsOrder
+            .map(id => {
+                const song = this._songs.find(s => s.id === id)
+                if (!song) return null
+                return {
+                    ...song,
+                    isLiked: true
+                }
+            })
+            .filter(song => song !== null)
     }
 
     get totalDuration() {
@@ -68,6 +64,7 @@ export default class SongStore {
             ])
             runInAction(() => {
                 this._songs = songsData
+                this._likedSongsOrder = likedData.map(like => like.songId)
                 this._likedIds = new Set(likedData.map(like => like.songId))
             })
         } catch (e) {
@@ -90,16 +87,21 @@ export default class SongStore {
         try {
             const songData = await getSong(id)
             runInAction(() => {
-                this._currentSong = {
-                    ...songData,
-                    isLiked: this._likedIds.has(id)
+                const index = this._songs.findIndex(s => s.id === parseInt(id))
+                if (index !== -1) {
+                    this._songs[index] = {
+                        ...this._songs[index],
+                        streamUrl: songData.streamUrl
+                    }
                 }
             })
+            return songData
         } catch (e) {
             runInAction(() => {
                 this._error = e.message
             })
             console.error('Не удалось получить трек:', e)
+            return null
         } finally {
             runInAction(() => {
                 this._isLoading = false
@@ -111,14 +113,14 @@ export default class SongStore {
         try {
             await toggleLike(songId)
             runInAction(() => {
-                if (this._likedIds.has(songId)) {
+                const wasLiked = this._likedIds.has(songId)
+                
+                if (wasLiked) {
                     this._likedIds.delete(songId)
+                    this._likedSongsOrder = this._likedSongsOrder.filter(id => id !== songId)
                 } else {
                     this._likedIds.add(songId)
-                }
-
-                if (this._currentSong && this._currentSong.id === songId) {
-                    this._currentSong.isLiked = !this._currentSong.isLiked
+                    this._likedSongsOrder = [songId, ...this._likedSongsOrder]
                 }
             })
         } catch (e) {
