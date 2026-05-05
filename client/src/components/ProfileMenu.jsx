@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { HiOutlineChevronDown } from 'react-icons/hi2';
-import { UserContext, ProfileContext } from '../main';
+import { UserContext, ProfileContext, PlayerContext } from '../main'; // Добавьте PlayerContext
 import { observer } from 'mobx-react-lite';
 
 const ProfileMenu = observer(() => {
@@ -9,6 +9,7 @@ const ProfileMenu = observer(() => {
   const location = useLocation();
   const userStore = useContext(UserContext);
   const profileStore = useContext(ProfileContext);
+  const playerStore = useContext(PlayerContext);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -23,6 +24,7 @@ const ProfileMenu = observer(() => {
   };
 
   const handleLogout = () => {
+    playerStore.clear();
     userStore.logout();
     profileStore.clearUser();
     navigate('/login');

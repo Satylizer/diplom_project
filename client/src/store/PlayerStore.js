@@ -137,4 +137,16 @@ export default class PlayerStore {
             this.audio.volume = 0
         }
     }
+
+    clear = () => {
+        if (this.audio) {
+            this.audio.pause()
+            this.audio.src = ''
+        }
+        this._currentSong = null
+        this._currentPlaylist = []
+        this._selectedPlaylist = []
+        this._currentIndex = 0
+        this._isPlaying = false
+    }
 }

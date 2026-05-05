@@ -41,8 +41,15 @@ class PlaylistController {
         
         const playlists = await Playlist.findAll({ 
             where: { userId },
-            order: [['createdAt', 'DESC']]
+            attributes: ['id', 'title', 'description', 'img', 'type', 'createdAt'],
+            include: [{
+                model: Song,
+                as: 'songs',
+                attributes: ["id"],
+                required: false
+            }],
         })
+        
         return res.json(playlists)
     }
 
@@ -51,11 +58,18 @@ class PlaylistController {
             const { userId } = req.params
             
             const playlists = await Playlist.findAll({
-                where: { 
+                where: {
                     userId,
                     type: 'custom'
                 },
                 attributes: ['id', 'title', 'description', 'img', 'type', 'createdAt'],
+                include: [{
+                    model: Song,
+                    as: 'songs',
+                    attributes: ["id", "name", "durationMs", "imgUrl"],
+                    through: { attributes: [] },
+                    required: false
+                }],
                 order: [['createdAt', 'DESC']],
             })
             
@@ -66,11 +80,10 @@ class PlaylistController {
     }
 
     async getOne(req, res, next) {
-        const { id } = req.params
-        const userId = req.user.id   
+        const { id } = req.params 
         
         const playlist = await Playlist.findOne({
-            where: { id, userId },
+            where: { id },
             include: [{
                 model: Song,
                 as: 'songs',

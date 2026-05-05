@@ -55,8 +55,16 @@ const SongCard = observer(({
       return
     }
     
-    playerStore.setCurrentPlaylist([song])
-    playerStore.setCurrentIndex(0)
+    let playlist = playerStore.selectedPlaylist
+    let startIndex = playlist.findIndex(s => s.id === song.id)
+    
+    if (startIndex === -1 || playlist.length === 0) {
+      playlist = [song]
+      startIndex = 0
+    }
+    
+    playerStore.setCurrentPlaylist(playlist)
+    playerStore.setCurrentIndex(startIndex)
     playerStore.toggle()
   }
 

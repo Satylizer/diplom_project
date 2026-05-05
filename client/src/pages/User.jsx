@@ -37,7 +37,8 @@ const UserPage = observer(() => {
       setIsFollowing(user.isFollowing || false)
       playlistStore.fetchUserPlaylists(id)
       }
-  }, [user, id, playlistStore])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
 
   const handleToggleFollow = async () => {
     const result = await followStore.toggleUserFollow(id)

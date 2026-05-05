@@ -16,9 +16,7 @@ const ArtistPage = observer(() => {
   const [followersCount, setFollowersCount] = useState(0)
 
   useEffect(() => {
-    if (id && artistStore.currentArtist?.id !== parseInt(id)) {
       artistStore.fetchArtist(id)
-    }
   }, [id, artistStore])
 
   useEffect(() => {

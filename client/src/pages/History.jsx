@@ -1,18 +1,28 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import SongGrid from '../components/Song/SongGrid'
-import { HistoryContext, UserContext } from '../main'
+import { HistoryContext, UserContext, PlayerContext } from '../main'
 import { FaClock } from 'react-icons/fa'
 
 const History = observer(() => {
     const historyStore = useContext(HistoryContext)
     const userStore = useContext(UserContext)
+    const playerStore = useContext(PlayerContext)
 
     useEffect(() => {
         historyStore.fetchHistory()
     }, [historyStore, userStore.user?.id])
+
+    const historySongs = historyStore.history?.map(item => item.song).filter(song => song) || []
+
+    useEffect(() => {
+        if (historySongs.length > 0) {
+            playerStore.setSelectedPlaylist(historySongs)
+        }
+    }, [historySongs, playerStore])
 
     if (historyStore.isLoading) {
         return (
@@ -24,8 +34,6 @@ const History = observer(() => {
             </div>
         )
     }
-
-    const historySongs = historyStore.history?.map(item => item.song).filter(song => song) || []
 
     return (
         <div className="flex bg-[#121212] min-h-screen text-white overflow-hidden">

@@ -3,6 +3,16 @@ import ApiError from '../error/ApiError.js';
 
 const SECRET = process.env.YANDEX_SECRET_SALT
 
+export function cleanTrackName(trackName) {
+    return trackName
+        .replace(/\([^)]*\)/g, '')
+        .replace(/\[[^\]]*\]/g, '')
+        .replace(/feat\..*$/i, '')
+        .replace(/with.*$/i, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+}
+
 export async function fetchDownloadXml(xmlUrl) {
     const response = await fetch(xmlUrl)
     const xml = await response.text()

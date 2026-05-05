@@ -1,6 +1,7 @@
 import ApiError from "../error/ApiError.js"
 import models from "../models/models.js"
 import yandexService from "../services/yandexService.js"
+import youTubeService from "../services/youtubeService.js"
 
 const { Song, Artist, Album } = models
 
@@ -53,12 +54,18 @@ class SongController {
                 return next(ApiError.notFound('Песня не найдена'))
             }
             
-            const artistName = song.artists?.[0]?.name
-            if (!artistName) {
+            const artistNames = song.artists?.map(a => a.name) || []
+            if (!artistNames.length) {
                 return next(ApiError.notFound('Исполнитель не найден'))
             }
             
-            const streamUrl = await yandexService.getStreamUrlByQuery(song.name, artistName)
+            let streamUrl
+            
+            try {
+                streamUrl = await yandexService.getStreamUrlByQuery(song.name, artistNames)
+            } catch (e) {
+                streamUrl = await youTubeService.getStreamUrlByQuery(song.name, artistNames[0])
+            }
             
             const songWithStream = {
                 ...song.toJSON(),

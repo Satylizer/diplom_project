@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite'
 import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import SongGrid from '../components/Song/SongGrid'
-import { PlaylistContext, PlayerContext } from '../main'
+import { PlaylistContext, PlayerContext, UserContext } from '../main'
 import { FaPlay, FaTrash } from 'react-icons/fa'
 import { BsPauseFill } from 'react-icons/bs'
 
@@ -12,19 +12,22 @@ const PlaylistPage = observer(() => {
   const { id } = useParams()
   const playlistStore = useContext(PlaylistContext)
   const playerStore = useContext(PlayerContext)
+  const userStore = useContext(UserContext)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   useEffect(() => {
     if (id && playlistStore.currentPlaylist?.id !== parseInt(id)) {
       playlistStore.fetchPlaylist(id)
     }
-  }, [id, playlistStore])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
 
   useEffect(() => {
     if (playlistStore.currentPlaylist?.songs?.length > 0) {
       playerStore.setSelectedPlaylist(playlistStore.currentPlaylist.songs)
     }
-  }, [playlistStore.currentPlaylist, playerStore])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
 
   const playlist = playlistStore.currentPlaylist
   const loading = playlistStore.isLoading
@@ -33,6 +36,8 @@ const PlaylistPage = observer(() => {
   const totalDuration = playlistStore.totalDuration
 
   const isPlayingThisPlaylist = playerStore.currentPlaylist === playlistSongs && playerStore.isPlaying
+  
+  const isOwner = playlist && playlist.userId === userStore.user?.id
 
   const handlePlayAll = () => {
     if (playlistSongs.length === 0) return
@@ -54,6 +59,9 @@ const PlaylistPage = observer(() => {
     await playlistStore.deletePlaylist(playlist.id)
     window.location.href = '/profile'
   }
+
+  
+  console.log(loading);
 
   if (loading) {
     return (
@@ -124,13 +132,15 @@ const PlaylistPage = observer(() => {
             </div>
           </div>
 
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="absolute bottom-4 right-8 px-3 py-1.5 bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.15)] rounded-lg text-[#9F9FA9] hover:text-red-500 text-sm font-medium transition flex items-center gap-2"
-          >
-            <FaTrash className="w-4 h-4" />
-            Delete Playlist
-          </button>
+          {isOwner && (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="absolute bottom-4 right-8 px-3 py-1.5 bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.15)] rounded-lg text-[#9F9FA9] hover:text-red-500 text-sm font-medium transition flex items-center gap-2"
+            >
+              <FaTrash className="w-4 h-4" />
+              Delete Playlist
+            </button>
+          )}
         </div>
 
         <div className="flex-1 bg-[#121212] px-8 pt-6 pb-24">

@@ -1,7 +1,7 @@
 import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import SongGrid from '../components/Song/SongGrid'
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { observer } from 'mobx-react-lite'
 import { SongContext, UserContext, PlayerContext } from '../main'
 import { HiHeart } from 'react-icons/hi'
@@ -29,17 +29,26 @@ const Likes = observer(() => {
     }
   }, [likedSongs, playerStore])
 
-  const isPlayingThisPlaylist = playerStore.currentPlaylist === likedSongs && playerStore.isPlaying
+  const isSamePlaylist = useMemo(() => {
+    if (playerStore.currentPlaylist.length !== likedSongs.length) return false
+    
+    const currentIds = playerStore.currentPlaylist.map(s => s.id).sort()
+    const likedIds = likedSongs.map(s => s.id).sort()
+    
+    return currentIds.every((id, index) => id === likedIds[index])
+  }, [playerStore.currentPlaylist, likedSongs])
+
+  const isPlayingThisPlaylist = isSamePlaylist && playerStore.isPlaying
 
   const handlePlayAll = () => {
     if (likedSongs.length === 0) return
     
-    if (playerStore.currentPlaylist === likedSongs && playerStore.isPlaying) {
+    if (isSamePlaylist && playerStore.isPlaying) {
       playerStore.toggle()
       return
     }
     
-    if (playerStore.currentPlaylist === likedSongs && !playerStore.isPlaying) {
+    if (isSamePlaylist && !playerStore.isPlaying) {
       playerStore.toggle()
       return
     }

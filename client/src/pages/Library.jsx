@@ -24,7 +24,6 @@ const Library = observer(() => {
 
   useEffect(() => {
     const loadData = async () => {
-      // Загружаем всё параллельно
       await Promise.all([
         albumStore.fetchLikedAlbums(),
         songStore.fetchSongs(),

@@ -8,8 +8,6 @@ class GetService {
             headers: { 'Authorization': `Bearer ${token}` },
             params: { market: 'US' }
         })
-
-        console.log('Full Spotify API response:', JSON.stringify(response.data, null, 2))
         
         return {
             spotifyId: response.data.id,
