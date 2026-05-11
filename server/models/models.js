@@ -44,6 +44,8 @@ const Song = sequelize.define("song", {
   totalLikes: { type: DataTypes.INTEGER, defaultValue: 0 },
   trackNumber: { type: DataTypes.INTEGER },
   albumId: { type: DataTypes.INTEGER },
+  audioFeatures: { type: DataTypes.JSONB },
+  embedding: { type: DataTypes.ARRAY(DataTypes.FLOAT) }
 })
 
 const Playlist = sequelize.define("playlist", {

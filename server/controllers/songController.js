@@ -1,6 +1,6 @@
 import ApiError from "../error/ApiError.js"
 import models from "../models/models.js"
-import yandexService from "../services/yandexService.js"
+import yandexService from "../services/yandex/yandexService.js"
 import youTubeService from "../services/youtubeService.js"
 
 const { Song, Artist, Album } = models
@@ -63,8 +63,10 @@ class SongController {
             
             try {
                 streamUrl = await yandexService.getStreamUrlByQuery(song.name, artistNames)
+                console.log("Yandex");
             } catch (e) {
                 streamUrl = await youTubeService.getStreamUrlByQuery(song.name, artistNames[0])
+                console.log("Youtube");
             }
             
             const songWithStream = {

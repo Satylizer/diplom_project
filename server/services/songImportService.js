@@ -1,4 +1,5 @@
 import spotifyService from "./spotify/index.js"
+import recCoBeatsService from "./recCoBeatsService.js"
 import models from "../models/models.js"
 
 const { Artist, Album, Song, SongArtists } = models
@@ -28,7 +29,17 @@ class SongImportService {
             }
         })
 
+        const featuresArray = await recCoBeatsService.getAlbumFeaturesBySpotifyId(
+            albumData.spotifyId
+        )
+
+        const featuresMap = new Map(
+            (featuresArray || []).map(f => [f.spotifyTrackId, f.features])
+        )
+
         for (const track of tracks) {
+            const features = featuresMap.get(track.spotifyId) || null
+
             const [song] = await Song.findOrCreate({
                 where: { spotifyId: track.spotifyId },
                 defaults: {
@@ -36,24 +47,26 @@ class SongImportService {
                     durationMs: track.durationMs,
                     trackNumber: track.trackNumber,
                     albumId: album.id,
-                    imgUrl: album.imgUrl
+                    imgUrl: album.imgUrl,
+                    audioFeatures: features
                 }
             })
-            
+
             for (const trackArtist of track.artists) {
-                let songArtist = await Artist.findOne({ 
-                    where: { spotifyId: trackArtist.spotifyId } 
+                let songArtist = await Artist.findOne({
+                    where: { spotifyId: trackArtist.spotifyId }
                 })
-                
+
                 if (!songArtist) {
                     const fullArtist = await spotifyService.getArtist(trackArtist.spotifyId)
+
                     songArtist = await Artist.create({
                         spotifyId: trackArtist.spotifyId,
                         name: trackArtist.name,
                         imgUrl: fullArtist.imgUrl,
                     })
                 }
-                
+
                 await SongArtists.findOrCreate({
                     where: {
                         songId: song.id,

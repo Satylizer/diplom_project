@@ -94,24 +94,23 @@ export default class PlaylistStore {
     }
 
     fetchPlaylist = async (id) => {
-        this._isLoading = true
-        this._error = null
-        try {
-            const data = await getPlaylist(id)
-            runInAction(() => {
-                this._currentPlaylist = data
-            })
-        } catch (e) {
-            runInAction(() => {
-                this._error = e.message
-            })
-            console.error('Ошибка загрузки плейлиста:', e)
-        } finally {
-            runInAction(() => {
-                this._isLoading = false
-            })
-        }
+    this._isLoading = true
+    try {
+        const data = await getPlaylist(id)
+        runInAction(() => {
+            this._currentPlaylist = data
+        })
+    } catch (e) {
+        console.error('ERROR', e)
+        runInAction(() => {
+            this._error = e.message
+        })
+    } finally {
+        runInAction(() => {
+            this._isLoading = false
+        })
     }
+}
 
     createPlaylist = async (playlistData) => {
         if (!playlistData.title) {

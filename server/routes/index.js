@@ -9,6 +9,7 @@ import songRouter from './songRouter.js'
 import albumRouter from "./albumRouter.js"
 import artistRouter from "./artistRouter.js"
 import followRouter from "./followRouter.js" 
+import mlDataRouter from "./mlDataRouter.js"
 
 router.use('/auth', authRouter)
 router.use('/history', historyRouter)
@@ -19,6 +20,7 @@ router.use('/song', songRouter)
 router.use('/album', albumRouter)
 router.use('/artist', artistRouter)
 router.use('/follow', followRouter)
+router.use('/ml', mlDataRouter)
 
 
 

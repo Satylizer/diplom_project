@@ -24,9 +24,7 @@ const UserPage = observer(() => {
   const userPlaylists = playlistStore.userPlaylists || []
 
   useEffect(() => {
-    if (id) {
-      userStore.fetchUserById(id)
-    }
+    userStore.fetchUserById(id)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
@@ -38,7 +36,7 @@ const UserPage = observer(() => {
       playlistStore.fetchUserPlaylists(id)
       }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }, [id, user])
 
   const handleToggleFollow = async () => {
     const result = await followStore.toggleUserFollow(id)

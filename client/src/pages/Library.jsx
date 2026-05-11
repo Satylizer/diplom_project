@@ -26,7 +26,6 @@ const Library = observer(() => {
     const loadData = async () => {
       await Promise.all([
         albumStore.fetchLikedAlbums(),
-        songStore.fetchSongs(),
         playlistStore.fetchPlaylists(),
         followStore.fetchFollowingArtists(),
         followStore.fetchUserFollowing()
@@ -42,6 +41,7 @@ const Library = observer(() => {
     }
     
     loadData()
+    console.log("Вызвалось");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userStore.user.id])
 

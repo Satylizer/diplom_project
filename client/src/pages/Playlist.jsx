@@ -16,21 +16,23 @@ const PlaylistPage = observer(() => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   useEffect(() => {
-    if (id && playlistStore.currentPlaylist?.id !== parseInt(id)) {
-      playlistStore.fetchPlaylist(id)
-    }
+    playlistStore.fetchPlaylist(id)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   useEffect(() => {
-    if (playlistStore.currentPlaylist?.songs?.length > 0) {
-      playerStore.setSelectedPlaylist(playlistStore.currentPlaylist.songs)
+    const songs = playlistStore.currentPlaylist?.songs
+
+    if (!songs || songs.length === 0) return
+
+    if (playerStore.currentPlaylist !== songs) {
+
+      playerStore.setSelectedPlaylist(songs)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }, [id, playlistStore.currentPlaylist])
 
   const playlist = playlistStore.currentPlaylist
-  const loading = playlistStore.isLoading
   const playlistSongs = playlist?.songs || []
   const songCount = playlistStore.songCount
   const totalDuration = playlistStore.totalDuration
@@ -58,20 +60,6 @@ const PlaylistPage = observer(() => {
   const handleDelete = async () => {
     await playlistStore.deletePlaylist(playlist.id)
     window.location.href = '/profile'
-  }
-
-  
-  console.log(loading);
-
-  if (loading) {
-    return (
-      <div className="flex bg-[#121212] min-h-screen">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-12 h-12 border-4 border-[#27272A] border-t-[#2B7FFF] rounded-full animate-spin" />
-        </div>
-      </div>
-    )
   }
 
   if (!playlist) {
@@ -159,7 +147,7 @@ const PlaylistPage = observer(() => {
           <SongGrid 
             songs={playlistSongs}
             showAlbum={true}
-            playlistId={parseInt(id)}
+            playlistId={id}
           />
         </div>
       </div>

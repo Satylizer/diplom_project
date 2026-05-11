@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.15.2",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",

@@ -49,7 +49,7 @@ export default class PlayerStore {
     }
     
     setSelectedPlaylist = (playlist) => {
-        this._selectedPlaylist = playlist
+        this._selectedPlaylist =playlist
     }
     
     setCurrentPlaylist = (playlist) => {

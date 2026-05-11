@@ -1,42 +1,24 @@
 import 'dotenv/config'
-import yandexApi from './clients/yandexApi.js'
-import yandexService from './services/yandexService.js'
+import sequelize from './db.js'
+import { train } from './services/recommendations/trainTwoTower.js'
 
-const testTrack = async () => {
-    const trackName = "I KNOW ?"
-    const artistName = "Travis Scott"
-    const query = `${artistName} - ${trackName}`
-    
-    console.log(`Поиск: ${query}`)
-    console.log('---')
-    
-    try {
-        const tracks = await yandexApi.searchTracks(query, 5)
-        
-        if (!tracks.length) {
-            console.log('Треки не найдены')
-            return
-        }
-        
-        console.log(`Найдено треков: ${tracks.length}`)
-        console.log('---')
-        
-        for (let i = 0; i < tracks.length; i++) {
-            const track = tracks[i]
-            console.log(`${i + 1}. ${track.title}`)
-            console.log(`   Исполнители: ${track.artists?.map(a => a.name).join(', ') || 'не указаны'}`)
-            console.log(`   ID: ${track.id}`)
-            console.log('---')
-        }
-        
-        const track = tracks[0]
-        const streamUrl = await yandexService.getStreamUrl(track.id)
-        console.log('Stream URL первого трека:')
-        console.log(streamUrl)
-        
-    } catch (error) {
-        console.log('Ошибка:', error.message)
-    }
+async function test() {
+  try {
+    console.log('🔌 DB connecting...')
+    await sequelize.authenticate()
+    console.log('✅ DB connected')
+
+    console.log('🚀 Starting training test...')
+
+    await train()
+
+    console.log('✅ TRAIN TEST PASSED')
+  } catch (err) {
+    console.error('❌ TRAIN TEST FAILED')
+    console.error(err)
+  } finally {
+    await sequelize.close()
+  }
 }
 
-testTrack()
+test()

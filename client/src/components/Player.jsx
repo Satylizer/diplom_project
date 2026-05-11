@@ -52,7 +52,8 @@ const Player = observer(() => {
       lastPlayedSongId.current = currentSongId
       historyStore.addToHistory(currentSongId)
     }
-  }, [playerStore?.currentSong?.id, historyStore])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerStore?.currentSong?.id])
   
   if (!playerStore?.currentSong) return null
   
