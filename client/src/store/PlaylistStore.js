@@ -1,10 +1,12 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import { getPlaylists, getPlaylist, createPlaylist, deletePlaylist, addSongToPlaylist, removeSongFromPlaylist, getUserPlaylists } from '../http/playlistApi'
+import { getRecsPlaylists, updateRecsPlaylists } from '../http/recsApi'
 
 export default class PlaylistStore {
     constructor() {
         this._playlists = []
         this._userPlaylists = []
+        this._recsPlaylists = { sequence: [], sameEnergy: [] }
         this._currentPlaylist = null
         this._isLoading = false
         this._error = null
@@ -18,6 +20,18 @@ export default class PlaylistStore {
 
     get userPlaylists() {
         return this._userPlaylists
+    }
+
+    get recsPlaylists() {
+        return this._recsPlaylists
+    }
+
+    get sequencePlaylists() {
+        return this._recsPlaylists.sequence || []
+    }
+
+    get sameEnergyPlaylists() {
+        return this._recsPlaylists.sameEnergy || []
     }
 
     get currentPlaylist() {
@@ -201,6 +215,57 @@ export default class PlaylistStore {
                 this._error = e.message
             })
             console.error('Ошибка удаления песни из плейлиста:', e)
+            return { success: false, error: e.message }
+        } finally {
+            runInAction(() => {
+                this._isLoading = false
+            })
+        }
+    }
+
+    fetchRecsPlaylists = async () => {
+        this._isLoading = true
+        this._error = null
+        try {
+            const { sequence, sameEnergy } = await getRecsPlaylists()
+            
+            runInAction(() => {
+                this._recsPlaylists = {
+                    sequence: sequence || [],
+                    sameEnergy: sameEnergy || []
+                }
+            })
+            
+            return { sequence, sameEnergy }
+        } catch (e) {
+            runInAction(() => {
+                this._error = e.message
+            })
+            console.error('Ошибка загрузки AI плейлистов:', e)
+            return { sequence: [], sameEnergy: [] }
+        } finally {
+            runInAction(() => {
+                this._isLoading = false
+            })
+        }
+    }
+
+    updateRecsPlaylists = async (top_k = 100) => {
+        this._isLoading = true
+        this._error = null
+        try {
+            const result = await updateRecsPlaylists(top_k)
+            
+            if (result.success) {
+                await this.fetchRecsPlaylists()
+            }
+            
+            return result
+        } catch (e) {
+            runInAction(() => {
+                this._error = e.message
+            })
+            console.error('Ошибка обновления AI плейлистов:', e)
             return { success: false, error: e.message }
         } finally {
             runInAction(() => {

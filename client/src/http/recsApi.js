@@ -1,8 +1,13 @@
-import { $authHost } from './index'
+import { $authHost } from "./index";
 
-export const getRecommendations = async (userId, top_k = 100) => {
-    const { data } = await $authHost.get(
-        `/api/recommendations/${userId}?top_k=${top_k}`
-    )
-    return data
-}
+export const getRecsPlaylists = async () => {
+  const { data } = await $authHost.get(`/api/recs`);
+
+  return data;
+};
+
+export const updateRecsPlaylists = async (top_k = 100) => {
+  const { data } = await $authHost.post(`/api/recs/update`, { top_k });
+
+  return data;
+};

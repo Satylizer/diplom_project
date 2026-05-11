@@ -1,8 +1,8 @@
 import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import AlbumCard from '../components/AlbumCard'
-import { useContext, useEffect } from 'react'
-import { AlbumContext, ArtistContext, SongContext, UserContext } from '../main'
+import { useContext, useEffect, useRef } from 'react'
+import { AlbumContext, ArtistContext, SongContext, UserContext, PlaylistContext } from '../main'
 import { observer } from 'mobx-react-lite';
 import { HiOutlineSparkles } from 'react-icons/hi';
 
@@ -11,12 +11,13 @@ const Home = observer(() => {
   const artistStore = useContext(ArtistContext)
   const songStore = useContext(SongContext)
   const userStore = useContext(UserContext)
+  const playlistStore = useContext(PlaylistContext)
 
   const albumsList = albumStore.albums || []
+  const hasUpdatedRef = useRef(false)
 
   useEffect(() => {
     const loadInitialData = async () => {
-          // Загружаем только если данные пустые и не в процессе загрузки
           if (albumsList.length === 0 && !albumStore.isLoading) {
             await albumStore.fetchAlbums()
           }
@@ -25,6 +26,10 @@ const Home = observer(() => {
           }
           if (songStore.songs.length === 0 && !songStore.isLoading) {
             await songStore.fetchSongs()
+          }
+          if (!hasUpdatedRef.current && userStore.user?.id) {
+            hasUpdatedRef.current = true
+            await playlistStore.updateRecsPlaylists(userStore.user.id)
           }
         }
     

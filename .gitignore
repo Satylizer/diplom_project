@@ -1,25 +1,20 @@
-# Python cache
 __pycache__/
 *.py[cod]
 *.pyc
 *.pyo
 *.pyd
 
-# Node modules
 node_modules/
 server/node_modules/
 
-# Virtual environment
 venv/
 ml/venv/
 env/
 
-# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
 .DS_Store
 Thumbs.db

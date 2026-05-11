@@ -25,32 +25,24 @@ class RecommenderService:
             dtype=np.float32
         )
 
-        self.song_embeddings = (
-            self.song_embeddings /
-            np.linalg.norm(
-                self.song_embeddings,
-                axis=1,
-                keepdims=True
-            )
-        )
+        self.song_embeddings = self._normalize_matrix(self.song_embeddings)
 
-        self.users, songs, self.sequences = load_dataset()
+        self.users, self.songs, self.sequences = load_dataset()
 
-    def get_sequence_recommendations(
-        self,
-        user_id: int,
-        top_k: int = 100
-    ):
+    def _normalize_vector(self, v):
+        return v / np.linalg.norm(v)
+
+    def _normalize_matrix(self, m):
+        return m / np.linalg.norm(m, axis=1, keepdims=True)
+
+    def get_sequence_recommendations(self, user_id: int, top_k: int = 100):
 
         sequence = self.sequences.get(str(user_id), [])
 
         if not sequence:
             return []
 
-        heard_song_ids = set(
-            item["songId"]
-            for item in sequence
-        )
+        heard = {item["songId"] for item in sequence}
 
         embedding_length = self.song_embeddings.shape[1]
 
@@ -59,25 +51,16 @@ class RecommenderService:
             dtype=np.float32
         )
 
-        user_emb = self.model.get_layer(
-            "user_encoder"
-        )(user_tensor).numpy()[0]
+        user_emb = self.model.get_layer("user_encoder")(user_tensor).numpy()[0]
+        user_emb = self._normalize_vector(user_emb)
 
-        user_emb = (
-            user_emb /
-            np.linalg.norm(user_emb)
-        )
-
-        scores = np.dot(
-            self.song_embeddings,
-            user_emb
-        )
+        scores = np.dot(self.song_embeddings, user_emb)
 
         top_idx = np.argsort(scores)[::-1]
 
-        filtered_idx = [
+        filtered = [
             i for i in top_idx
-            if self.song_ids[i] not in heard_song_ids
+            if self.song_ids[i] not in heard
         ][:top_k]
 
         return [
@@ -85,32 +68,37 @@ class RecommenderService:
                 "songId": self.song_ids[i],
                 "score": float(scores[i])
             }
-            for i in filtered_idx
+            for i in filtered
         ]
+        
+    def get_same_energy_recommendations(self, user_id: int, top_k: int = 100):
 
-    def get_same_energy_recommendations(
-        self,
-        song_id: int,
-        top_k: int = 100
-    ):
+        sequence = self.sequences.get(str(user_id), [])
 
-        if song_id not in self.song_ids:
+        if not sequence:
             return []
 
-        seed_idx = self.song_ids.index(song_id)
+        heard = {item["songId"] for item in sequence}
 
-        seed_embedding = self.song_embeddings[seed_idx]
+        seed_embeddings = [
+            self.song_embeddings[self.song_ids.index(item["songId"])]
+            for item in sequence
+            if item["songId"] in self.song_ids
+        ]
 
-        scores = np.dot(
-            self.song_embeddings,
-            seed_embedding
-        )
+        if not seed_embeddings:
+            return []
+
+        seed_embedding = np.mean(seed_embeddings, axis=0)
+        seed_embedding = self._normalize_vector(seed_embedding)
+
+        scores = np.dot(self.song_embeddings, seed_embedding)
 
         top_idx = np.argsort(scores)[::-1]
 
-        filtered_idx = [
+        filtered = [
             i for i in top_idx
-            if self.song_ids[i] != song_id
+            if self.song_ids[i] not in heard
         ][:top_k]
 
         return [
@@ -118,5 +106,5 @@ class RecommenderService:
                 "songId": self.song_ids[i],
                 "score": float(scores[i])
             }
-            for i in filtered_idx
+            for i in filtered
         ]

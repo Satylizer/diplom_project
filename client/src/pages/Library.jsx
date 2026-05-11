@@ -76,7 +76,7 @@ const Library = observer(() => {
           />
         </div>
       )
-    } else if (item.type === 'playlist') {
+    } else if (item.type === 'custom') {
       return (
         <div 
           key={`playlist-${item.id}`}

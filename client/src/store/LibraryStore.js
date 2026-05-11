@@ -75,7 +75,7 @@ export default class LibraryStore {
                 break
             }
             case 'Playlists': {
-                items = [...this._allPlaylists].map(item => ({ ...item, type: 'playlist' }))
+                items = [...this._allPlaylists].map(item => ({ ...item }))
                 break
             }
             case 'Followed': {
@@ -94,7 +94,7 @@ export default class LibraryStore {
             }
             default: {
                 const allAlbums = [...this._likedAlbums].map(item => ({ ...item, type: 'album' }))
-                const allPlaylists = [...this._allPlaylists].map(item => ({ ...item, type: 'playlist' }))
+                const allPlaylists = [...this._allPlaylists].map(item => ({ ...item}))
                 const allArtists = [...this._followedArtists].map(item => ({ ...item, type: 'artist' }))
                 const allUsers = [...this._followedUsers].map(item => ({ 
                     ...item, 
