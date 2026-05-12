@@ -1,7 +1,8 @@
 import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
+import RecsCard from '../components/RecsCard'
 import AlbumCard from '../components/AlbumCard'
-import { useContext, useEffect, useRef } from 'react'
+import { useContext, useEffect } from 'react'
 import { AlbumContext, ArtistContext, SongContext, UserContext, PlaylistContext } from '../main'
 import { observer } from 'mobx-react-lite';
 import { HiOutlineSparkles } from 'react-icons/hi';
@@ -14,7 +15,6 @@ const Home = observer(() => {
   const playlistStore = useContext(PlaylistContext)
 
   const albumsList = albumStore.albums || []
-  const hasUpdatedRef = useRef(false)
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -27,29 +27,23 @@ const Home = observer(() => {
           if (songStore.songs.length === 0 && !songStore.isLoading) {
             await songStore.fetchSongs()
           }
-          if (!hasUpdatedRef.current && userStore.user?.id) {
-            hasUpdatedRef.current = true
-            await playlistStore.updateRecsPlaylists(userStore.user.id)
+          if (playlistStore && userStore.user?.id) {
+            await playlistStore.fetchRecsPlaylists(userStore.user.id)
           }
         }
     
     loadInitialData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userStore.user.id])
+  }, [userStore.user?.id])
 
-  const getRecommendedForYou = () => {
-    return albumsList.slice(0, 6)
-  }
-
-  const getSimilarVibe = () => {
-    return albumsList.slice(6, 12)
-  }
+  const sequencePlaylists = playlistStore.sequencePlaylists || []
+  const sameEnergyPlaylists = playlistStore.sameEnergyPlaylists || []
 
   const getSimilarMeaning = () => {
-    return albumsList.slice(12, 18)
+    return albumsList.slice(10, 15)
   }
 
-  if (albumStore.isLoading || artistStore.isLoading ) {
+  if (albumStore.isLoading || artistStore.isLoading || playlistStore.isLoading) {
     return (
       <div className="flex bg-linear-to-b from-[#1A1A1A] to-[#121212] min-h-screen">
         <Sidebar />
@@ -84,53 +78,50 @@ const Home = observer(() => {
             </p>
           </div>
 
-          {/* AI picks */}
           <div className="mb-10">
             <div className="flex items-center gap-2 mb-4">
               <h2 className="text-white text-lg font-bold tracking-tight">AI picks</h2>
               <span className="text-xs text-[#9F9FA9] bg-white/5 px-2 py-0.5 rounded-full">For you</span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {getRecommendedForYou().map(album => (
-                <AlbumCard 
-                  key={album.id} 
-                  album={album}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              {sequencePlaylists.map(playlist => (
+                <RecsCard 
+                  key={playlist.id} 
+                  playlist={playlist}
                   cardSize="w-full"
                   titleSize="text-sm font-semibold mt-2"
-                  artistNamesSize="text-xs text-[#9F9FA9] mt-0.5"
+                  subtitleSize="text-xs text-[#9F9FA9] mt-0.5"
                   hasTransition={true}
                 />
               ))}
             </div>
           </div>
 
-          {/* Similar vibe */}
           <div className="mb-10">
             <div className="flex items-center gap-2 mb-4">
               <h2 className="text-white text-lg font-bold tracking-tight">Similar vibe</h2>
               <span className="text-xs text-[#9F9FA9] bg-white/5 px-2 py-0.5 rounded-full">Same energy</span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {getSimilarVibe().map(album => (
-                <AlbumCard 
-                  key={album.id} 
-                  album={album}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              {sameEnergyPlaylists.map(playlist => (
+                <RecsCard 
+                  key={playlist.id} 
+                  playlist={playlist}
                   cardSize="w-full"
                   titleSize="text-sm font-semibold mt-2"
-                  artistNamesSize="text-xs text-[#9F9FA9] mt-0.5"
+                  subtitleSize="text-xs text-[#9F9FA9] mt-0.5"
                   hasTransition={true}
                 />
               ))}
             </div>
           </div>
 
-          {/* Based on your taste */}
           <div className="mb-10">
             <div className="flex items-center gap-2 mb-4">
               <h2 className="text-white text-lg font-bold tracking-tight">Based on your taste</h2>
               <span className="text-xs text-[#9F9FA9] bg-white/5 px-2 py-0.5 rounded-full">Similar meaning</span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {getSimilarMeaning().map(album => (
                 <AlbumCard 
                   key={album.id} 

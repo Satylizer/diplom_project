@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import { getPlaylists, getPlaylist, createPlaylist, deletePlaylist, addSongToPlaylist, removeSongFromPlaylist, getUserPlaylists } from '../http/playlistApi'
-import { getRecsPlaylists, updateRecsPlaylists } from '../http/recsApi'
+import { getRecsPlaylists, updateRecsPlaylists, getRecsPlaylistById } from '../http/recsApi'
 
 export default class PlaylistStore {
     constructor() {
@@ -8,6 +8,7 @@ export default class PlaylistStore {
         this._userPlaylists = []
         this._recsPlaylists = { sequence: [], sameEnergy: [] }
         this._currentPlaylist = null
+        this._currentRecsPlaylist = null
         this._isLoading = false
         this._error = null
         
@@ -24,6 +25,10 @@ export default class PlaylistStore {
 
     get recsPlaylists() {
         return this._recsPlaylists
+    }
+
+    get currentRecsPlaylist() {
+        return this._currentRecsPlaylist
     }
 
     get sequencePlaylists() {
@@ -254,19 +259,36 @@ export default class PlaylistStore {
         this._isLoading = true
         this._error = null
         try {
-            const result = await updateRecsPlaylists(top_k)
-            
-            if (result.success) {
-                await this.fetchRecsPlaylists()
-            }
-            
+            const result = await updateRecsPlaylists(top_k)        
             return result
         } catch (e) {
             runInAction(() => {
                 this._error = e.message
             })
-            console.error('Ошибка обновления AI плейлистов:', e)
+            console.error('Ошибка обновления ML плейлистов:', e)
             return { success: false, error: e.message }
+        } finally {
+            runInAction(() => {
+                this._isLoading = false
+            })
+        }
+    }
+
+    fetchRecsPlaylistById = async (id) => {
+        this._isLoading = true
+        this._error = null
+        try {
+            const data = await getRecsPlaylistById(id)
+            runInAction(() => {
+                this._currentRecsPlaylist = data
+            })
+            return data
+        } catch (e) {
+            runInAction(() => {
+                this._error = e.message
+            })
+            console.error('Ошибка загрузки ML плейлиста:', e)
+            return null
         } finally {
             runInAction(() => {
                 this._isLoading = false

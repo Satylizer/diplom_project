@@ -19,9 +19,7 @@ const PlaylistCard = ({
     : '';
 
   const handleClick = () => {
-    if (playlist.type === 'custom') {
-      navigate(`/playlist/${playlist.id}`)
-    }
+    navigate(`/playlist/${playlist.id}`)
   }
 
   const songCount = playlist.songs?.length || 0

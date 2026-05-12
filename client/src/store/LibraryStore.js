@@ -75,7 +75,7 @@ export default class LibraryStore {
                 break
             }
             case 'Playlists': {
-                items = [...this._allPlaylists].map(item => ({ ...item }))
+                items = [...this._allPlaylists].map(item => ({ ...item, type: 'playlist' }))
                 break
             }
             case 'Followed': {

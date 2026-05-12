@@ -21,15 +21,10 @@ def sequence_recommendations(
     return recs
 
 
-@app.get("/recommendations/same-energy/{song_id}")
+@app.get("/recommendations/same-energy/{user_id}")
 def same_energy_recommendations(
-    song_id: int,
+    user_id: int,
     top_k: int = Query(100, ge=1, le=500)
 ):
-
-    recs = service.get_same_energy_recommendations(
-        song_id,
-        top_k
-    )
-
+    recs = service.get_same_energy_recommendations(user_id, top_k)
     return recs
