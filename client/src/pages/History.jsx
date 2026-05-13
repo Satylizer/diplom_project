@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import Sidebar from '../components/Sidebar/Sidebar'

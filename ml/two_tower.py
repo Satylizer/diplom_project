@@ -51,8 +51,6 @@ def create_song_encoder(embedding_length):
         name="song_encoder"
     )
 
-
-
 class TwoTowerEmbeddings(tf.keras.Model):
 
     def __init__(self, sequence_length=10, embedding_length=128):

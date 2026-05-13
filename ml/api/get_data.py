@@ -26,3 +26,17 @@ def load_dataset():
         sequences[str(user_id)] = seq_response.json()
 
     return users, songs, sequences
+
+def load_time_sequences():
+    users_response = requests.get(f"{BASE_URL}/users")
+    users_response.raise_for_status()
+    users = users_response.json()
+
+    time_sequences = {}
+
+    for user_id in users:
+        seq_response = requests.get(f"{BASE_URL}/time-sequence/{user_id}")
+        seq_response.raise_for_status()
+        time_sequences[str(user_id)] = seq_response.json()
+
+    return time_sequences

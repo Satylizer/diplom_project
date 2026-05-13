@@ -53,10 +53,6 @@ const Home = observer(() => {
   const sequencePlaylists = playlistStore.sequencePlaylists || []
   const sameEnergyPlaylists = playlistStore.sameEnergyPlaylists || []
 
-  const getSimilarMeaning = () => {
-    return albumsList.slice(10, 15)
-  }
-
   if (albumStore.isLoading || artistStore.isLoading || playlistStore.isLoading) {
     return (
       <div className="flex bg-linear-to-b from-[#1A1A1A] to-[#121212] min-h-screen">
@@ -129,26 +125,6 @@ const Home = observer(() => {
               ))}
             </div>
           </div>
-
-          <div className="mb-10">
-            <div className="flex items-center gap-2 mb-4">
-              <h2 className="text-white text-lg font-bold tracking-tight">Based on your taste</h2>
-              <span className="text-xs text-[#9F9FA9] bg-white/5 px-2 py-0.5 rounded-full">Similar meaning</span>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-              {getSimilarMeaning().map(album => (
-                <AlbumCard 
-                  key={album.id} 
-                  album={album}
-                  cardSize="w-full"
-                  titleSize="text-sm font-semibold mt-2"
-                  artistNamesSize="text-xs text-[#9F9FA9] mt-0.5"
-                  hasTransition={true}
-                />
-              ))}
-            </div>
-          </div>
-
         </div>
       </div>
     </div>

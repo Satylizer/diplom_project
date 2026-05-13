@@ -35,7 +35,7 @@ class HistoryController {
         const allHistory = await History.findAll({
             where: { userId },
             order: [['playedAt', 'DESC']],
-            limit: 400,
+            limit: 200,
             include: [{ model: Song }]
         })
 
