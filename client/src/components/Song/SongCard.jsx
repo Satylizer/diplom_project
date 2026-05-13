@@ -13,11 +13,14 @@ const formatDuration = (ms) => {
 
 const SongCard = observer(({
   songId,
+  playlist,
   index,
   showAlbum = true,
   hasTransition = true,
   inlineView = false,
-  playlistId = null
+  playlistId = null,
+  playlistType = null,
+  contentId = null
 }) => {
   const songStore = useContext(SongContext)
   const playlistStore = useContext(PlaylistContext)
@@ -43,6 +46,7 @@ const SongCard = observer(({
   const animationClass = hasTransition && !inlineView ? 'transition-all duration-200' : ''
     
   const handlePlayPause = (e) => {
+    console.log("Вызвалось");
     e?.stopPropagation()
     
     if (playerStore.currentSong?.id === song.id && playerStore.isPlaying) {
@@ -55,16 +59,16 @@ const SongCard = observer(({
       return
     }
     
-    let playlist = playerStore.selectedPlaylist
-    let startIndex = playlist.findIndex(s => s.id === song.id)
+    let targetPlaylist = playlist
+    let startIndex = targetPlaylist.findIndex(s => s.id === song.id)
     
-    if (startIndex === -1 || playlist.length === 0) {
-      playlist = [song]
-      startIndex = 0
-    }
-    
-    playerStore.setCurrentPlaylist(playlist)
+    playerStore.setCurrentPlaylist(targetPlaylist)
     playerStore.setCurrentIndex(startIndex)
+
+    if (playlistType && contentId) {
+      playerStore.setCurrentPlaylistContext({ type: playlistType, id: contentId })
+    }
+
     playerStore.toggle()
   }
 

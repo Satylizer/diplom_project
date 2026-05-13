@@ -1,7 +1,7 @@
 import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import SongGrid from '../components/Song/SongGrid'
-import { useContext, useEffect, useMemo } from 'react'
+import { useContext, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { SongContext, UserContext, PlayerContext } from '../main'
 import { HiHeart } from 'react-icons/hi'
@@ -23,36 +23,35 @@ const Likes = observer(() => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userStore.user?.id])
 
-  useEffect(() => {
-    if (likedSongs.length > 0) {
-      playerStore.setSelectedPlaylist(likedSongs)
+  const isPlayingThisPlaylist = () => {
+    if (!playerStore.isPlaying) return false
+    
+    const currentPlaylist = playerStore.currentPlaylist
+    if (currentPlaylist.length === 0 || likedSongs.length === 0) return false
+    if (currentPlaylist.length !== likedSongs.length) return false
+    
+    const currentIds = new Set(currentPlaylist.map(s => s?.id))
+    const likedIds = new Set(likedSongs.map(s => s?.id))
+    playerStore.setCurrentPlaylistContext({ type: 'likes'})
+    
+    if (currentIds.size !== likedIds.size) return false
+    
+    for (const id of currentIds) {
+      if (!likedIds.has(id)) return false
     }
-  }, [likedSongs, playerStore])
-
-  const isSamePlaylist = useMemo(() => {
-    if (playerStore.currentPlaylist.length !== likedSongs.length) return false
     
-    const currentIds = playerStore.currentPlaylist.map(s => s.id).sort()
-    const likedIds = likedSongs.map(s => s.id).sort()
-    
-    return currentIds.every((id, index) => id === likedIds[index])
-  }, [playerStore.currentPlaylist, likedSongs])
-
-  const isPlayingThisPlaylist = isSamePlaylist && playerStore.isPlaying
+    return true
+  }
 
   const handlePlayAll = () => {
     if (likedSongs.length === 0) return
     
-    if (isSamePlaylist && playerStore.isPlaying) {
+    if (isPlayingThisPlaylist()) {
       playerStore.toggle()
       return
     }
     
-    if (isSamePlaylist && !playerStore.isPlaying) {
-      playerStore.toggle()
-      return
-    }
-    
+    playerStore.setSelectedPlaylist(likedSongs)
     playerStore.playSelectedPlaylist()
   }
 
@@ -93,7 +92,7 @@ const Likes = observer(() => {
               onClick={handlePlayAll}
               className="size-14 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all cursor-pointer shadow-lg"
             >
-              {isPlayingThisPlaylist ? (
+              {isPlayingThisPlaylist() ? (
                 <BsPauseFill className="text-black text-2xl" />
               ) : (
                 <FaPlay className="text-black text-lg ml-0.5" />
@@ -108,7 +107,9 @@ const Likes = observer(() => {
         <div className="relative z-10 px-8 mt-6 pb-24">
           <SongGrid 
             songs={likedSongs}
+            playlist={likedSongs}
             showAlbum={true}
+            playlistType="likes"      
           />
         </div>
       </div>

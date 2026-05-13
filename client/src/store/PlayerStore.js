@@ -6,6 +6,7 @@ export default class PlayerStore {
         this._currentSong = null
         this._currentPlaylist = []
         this._selectedPlaylist = []
+        this._currentPlaylistContext = null
         this._currentIndex = 0
         this._isPlaying = false
         this._volume = 1
@@ -31,6 +32,9 @@ export default class PlayerStore {
         if (!this.audio || !this.audio.duration) return 0
         return (this.audio.currentTime / this.audio.duration) * 100
     }
+    get currentPlaylistContext() { 
+        return this._currentPlaylistContext 
+    }
     
     setupListeners = () => {
         if (!this.audio) return
@@ -49,11 +53,15 @@ export default class PlayerStore {
     }
     
     setSelectedPlaylist = (playlist) => {
-        this._selectedPlaylist =playlist
+        this._selectedPlaylist = playlist
     }
     
     setCurrentPlaylist = (playlist) => {
         this._currentPlaylist = playlist
+    }
+
+    setCurrentPlaylistContext = (context) => {
+        this._currentPlaylistContext = context
     }
     
     setCurrentIndex = (index) => {
@@ -148,5 +156,10 @@ export default class PlayerStore {
         this._selectedPlaylist = []
         this._currentIndex = 0
         this._isPlaying = false
+        this._currentPlaylistContext = null
+    }
+
+    clearCurrentPlaylistContext = () => {
+        this._currentPlaylistContext = null
     }
 }

@@ -10,19 +10,12 @@ import { FaClock } from 'react-icons/fa'
 const History = observer(() => {
     const historyStore = useContext(HistoryContext)
     const userStore = useContext(UserContext)
-    const playerStore = useContext(PlayerContext)
 
     useEffect(() => {
         historyStore.fetchHistory()
     }, [historyStore, userStore.user?.id])
 
     const historySongs = historyStore.history?.map(item => item.song).filter(song => song) || []
-
-    useEffect(() => {
-        if (historySongs.length > 0) {
-            playerStore.setSelectedPlaylist(historySongs)
-        }
-    }, [historySongs, playerStore])
 
     if (historyStore.isLoading) {
         return (
@@ -66,7 +59,7 @@ const History = observer(() => {
                             <p className="text-[#9F9FA9] text-sm">Start listening to music to see your history here</p>
                         </div>
                     ) : (
-                        <SongGrid songs={historySongs} showAlbum={true} />
+                        <SongGrid songs={historySongs} playlist={historySongs} playlistType="history" showAlbum={true} />
                     )}
                 </div>
             </div>  

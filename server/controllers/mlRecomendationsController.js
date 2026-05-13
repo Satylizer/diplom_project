@@ -41,6 +41,7 @@ class MlRecommendationsController {
                     userId,
                     type: 'sequence_recs',
                     title: ML_PLAYLIST_CONFIG.titles.sequence[i] || 'For you',
+                    img: ML_PLAYLIST_CONFIG.img.sequence[i] || null,
                     songs: songs.slice(0, 20)
                 })
             })
@@ -52,6 +53,7 @@ class MlRecommendationsController {
                     userId,
                     type: 'same_energy_recs',
                     title: ML_PLAYLIST_CONFIG.titles.same_energy[i] || 'Same vibe',
+                    img: ML_PLAYLIST_CONFIG.img.same_energy[i] || null,
                     songs: songs.slice(0, 20)
                 })
             })
@@ -70,6 +72,7 @@ class MlRecommendationsController {
                         userId: p.userId,
                         type: p.type,
                         title: p.title,
+                        img: p.img
                     },
                     { transaction }
                 )

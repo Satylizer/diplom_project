@@ -1,4 +1,5 @@
 import { observer } from 'mobx-react-lite'
+import { useNavigate } from 'react-router-dom'
 import { useContext, useState, useEffect, useRef } from 'react'
 import { PlayerContext, HistoryContext, SongContext } from '../main'
 import { BsPlayFill, BsPauseFill, BsSkipForwardFill, BsSkipBackwardFill } from 'react-icons/bs'
@@ -13,6 +14,7 @@ const formatTime = (seconds) => {
 }
 
 const Player = observer(() => {
+  const navigate = useNavigate()
   const playerStore = useContext(PlayerContext)
   const historyStore = useContext(HistoryContext)
   const songStore = useContext(SongContext)
@@ -23,6 +25,22 @@ const Player = observer(() => {
   const animationRef = useRef(null)
   const pendingSeekRef = useRef(null)
   const lastPlayedSongId = useRef(null)
+
+  const handleNavigateToContext = () => {
+    console.log("Вызвалось");
+    
+    const context = playerStore.currentPlaylistContext
+    console.log(context);
+    if (!context) return
+    
+    if (context.type === 'likes') {
+      navigate('/likes')
+    } else if (context.type === 'history') {
+      navigate('/history')
+    } else {
+      navigate(`/${context.type}/${context.id}`)
+    }
+  }
 
   useEffect(() => {
     if (!playerStore?.audio) return
@@ -124,7 +142,9 @@ const Player = observer(() => {
           
           <div className="hidden lg:block">
             <div className="flex items-center gap-2">
-              <h4 className="text-white text-sm font-medium hover:underline cursor-pointer truncate max-w-35">
+              <h4 onClick={handleNavigateToContext} 
+                  className="text-white text-sm font-medium hover:underline cursor-pointer truncate max-w-35"
+              >
                 {song.name}
               </h4>
             </div>

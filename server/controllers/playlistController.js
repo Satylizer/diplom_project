@@ -40,7 +40,10 @@ class PlaylistController {
         const userId = req.user.id
         
         const playlists = await Playlist.findAll({ 
-            where: { userId },
+            where: { 
+                userId, 
+                type: 'custom'
+            },
             attributes: ['id', 'title', 'description', 'img', 'type', 'createdAt'],
             include: [{
                 model: Song,

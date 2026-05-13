@@ -24,12 +24,6 @@ const AlbumPage = observer(() => {
     }
   }, [albumStore.currentAlbum])
 
-  useEffect(() => {
-    if (albumStore.currentAlbum?.songs?.length > 0) {
-      playerStore.setSelectedPlaylist(albumStore.currentAlbum.songs)
-    }
-  }, [albumStore.currentAlbum, playerStore])
-
   const handleToggleLike = async () => {
     const result = await albumStore.toggleLike(id)
     setIsLiked(result.isLiked)
@@ -39,21 +33,35 @@ const AlbumPage = observer(() => {
   const loading = albumStore.isLoading
   const albumSongs = album?.songs || album?.tracks || []
 
-  const isPlayingThisPlaylist = playerStore.currentPlaylist === albumSongs && playerStore.isPlaying
+  const isPlayingThisPlaylist = () => {
+    if (!playerStore.isPlaying) return false
+    
+    const currentPlaylist = playerStore.currentPlaylist
+    if (currentPlaylist.length === 0 || albumSongs.length === 0) return false
+    if (currentPlaylist.length !== albumSongs.length) return false
+    
+    const currentIds = new Set(currentPlaylist.map(s => s?.id))
+    const albumIds = new Set(albumSongs.map(s => s?.id))
+    playerStore.setCurrentPlaylistContext({ type: 'album', id: album.id })
+    
+    if (currentIds.size !== albumIds.size) return false
+    
+    for (const id of currentIds) {
+      if (!albumIds.has(id)) return false
+    }
+    
+    return true
+  }
 
   const handlePlayAll = () => {
     if (albumSongs.length === 0) return
     
-    if (playerStore.currentPlaylist === albumSongs && playerStore.isPlaying) {
+    if (isPlayingThisPlaylist()) {
       playerStore.toggle()
       return
     }
     
-    if (playerStore.currentPlaylist === albumSongs && !playerStore.isPlaying) {
-      playerStore.toggle()
-      return
-    }
-    
+    playerStore.setSelectedPlaylist(albumSongs)
     playerStore.playSelectedPlaylist()
   }
 
@@ -140,7 +148,7 @@ const AlbumPage = observer(() => {
               onClick={handlePlayAll}
               className="size-14 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all cursor-pointer shadow-lg"
             >
-              {isPlayingThisPlaylist ? (
+              {isPlayingThisPlaylist() ? (
                 <BsPauseFill className="text-black text-2xl" />
               ) : (
                 <FaPlay className="text-black text-lg ml-1" />
@@ -163,7 +171,10 @@ const AlbumPage = observer(() => {
           <div className="pb-24">
             <SongGrid 
               songs={albumSongs}
+              playlist = {albumSongs}
               showAlbum={false}
+              playlistType="album"
+              contentId = {album.id}
             />
           </div>
         </div>

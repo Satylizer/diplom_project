@@ -23,24 +23,35 @@ const RecsPage = observer(() => {
     return playlist?.songs || []
   }, [playlist])
 
-  const isPlayingThisPlaylist =
-    playerStore.currentRecsPlaylist === playlistSongs &&
-    playerStore.isPlaying
-
-  useEffect(() => {
-    if (playlistSongs.length > 0) {
-      playerStore.setSelectedPlaylist(playlistSongs)
+  const isPlayingThisPlaylist = () => {
+    if (!playerStore.isPlaying) return false
+    
+    const currentPlaylist = playerStore.currentPlaylist
+    if (currentPlaylist.length === 0 || playlistSongs.length === 0) return false
+    if (currentPlaylist.length !== playlistSongs.length) return false
+    
+    const currentIds = new Set(currentPlaylist.map(s => s?.id))
+    const playlistIds = new Set(playlistSongs.map(s => s?.id))
+    playerStore.setCurrentPlaylistContext({ type: 'recs', id: playlist.id })
+    
+    if (currentIds.size !== playlistIds.size) return false
+    
+    for (const id of currentIds) {
+      if (!playlistIds.has(id)) return false
     }
-  }, [playlistSongs, playerStore])
+    
+    return true
+  }
 
   const handlePlayAll = () => {
     if (!playlistSongs.length) return
 
-    if (playerStore.currentRecsPlaylist === playlistSongs) {
+    if (isPlayingThisPlaylist()) {
       playerStore.toggle()
       return
     }
 
+    playerStore.setSelectedPlaylist(playlistSongs)
     playerStore.playSelectedPlaylist()
   }
 
@@ -145,7 +156,7 @@ const RecsPage = observer(() => {
               onClick={handlePlayAll}
               className="size-14 rounded-full bg-[#2B7FFF] flex items-center justify-center shadow-lg transition-transform duration-200 hover:scale-105 active:scale-95"
             >
-              {isPlayingThisPlaylist ? (
+              {isPlayingThisPlaylist() ? (
                 <BsPauseFill className="text-black text-2xl" />
               ) : (
                 <FaPlay className="text-black text-lg ml-1" />
@@ -156,7 +167,13 @@ const RecsPage = observer(() => {
 
         <div className="relative z-10 mt-5 px-2 py-2 rounded-lg mx-auto w-300">
           <div className="pb-24">
-            <SongGrid songs={playlistSongs} showAlbum={true} />
+            <SongGrid 
+              songs={playlistSongs}
+              playlist={playlistSongs}
+              showAlbum={true}
+              playlistType="recs"
+              contentId={playlist.id}
+            />
           </div>
         </div>
       </div>

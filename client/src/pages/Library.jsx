@@ -41,7 +41,6 @@ const Library = observer(() => {
     }
     
     loadData()
-    console.log("Вызвалось");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userStore.user.id])
 

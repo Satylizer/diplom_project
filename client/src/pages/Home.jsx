@@ -2,10 +2,18 @@ import Sidebar from '../components/Sidebar/Sidebar'
 import ProfileMenu from '../components/ProfileMenu'
 import RecsCard from '../components/RecsCard'
 import AlbumCard from '../components/AlbumCard'
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useRef } from 'react'
 import { AlbumContext, ArtistContext, SongContext, UserContext, PlaylistContext } from '../main'
 import { observer } from 'mobx-react-lite';
 import { HiOutlineSparkles } from 'react-icons/hi';
+
+// const getTimeOfDay = () => {
+//     const hour = new Date().getHours()
+//     if (hour >= 6 && hour < 12) return 'morning'
+//     if (hour >= 12 && hour < 18) return 'day'
+//     if (hour >= 18 && hour < 23) return 'evening'
+//     return 'night'
+// }
 
 const Home = observer(() => {
   const albumStore = useContext(AlbumContext)
@@ -13,8 +21,17 @@ const Home = observer(() => {
   const songStore = useContext(SongContext)
   const userStore = useContext(UserContext)
   const playlistStore = useContext(PlaylistContext)
-
   const albumsList = albumStore.albums || []
+
+  const hasUpdated = useRef(false)
+
+  useEffect(() => {
+    if (!hasUpdated.current) {
+      hasUpdated.current = true
+      playlistStore.fetchRecsPlaylists()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userStore.user?.id])
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -26,9 +43,6 @@ const Home = observer(() => {
           }
           if (songStore.songs.length === 0 && !songStore.isLoading) {
             await songStore.fetchSongs()
-          }
-          if (playlistStore && userStore.user?.id) {
-            await playlistStore.fetchRecsPlaylists(userStore.user.id)
           }
         }
     

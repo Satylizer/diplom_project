@@ -20,40 +20,42 @@ const PlaylistPage = observer(() => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
-  useEffect(() => {
-    const songs = playlistStore.currentPlaylist?.songs
-
-    if (!songs || songs.length === 0) return
-
-    if (playerStore.currentPlaylist !== songs) {
-
-      playerStore.setSelectedPlaylist(songs)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, playlistStore.currentPlaylist])
-
   const playlist = playlistStore.currentPlaylist
   const playlistSongs = playlist?.songs || []
   const songCount = playlistStore.songCount
   const totalDuration = playlistStore.totalDuration
 
-  const isPlayingThisPlaylist = playerStore.currentPlaylist === playlistSongs && playerStore.isPlaying
+  const isPlayingThisPlaylist = () => {
+    if (!playerStore.isPlaying) return false
+    
+    const currentPlaylist = playerStore.currentPlaylist
+    if (currentPlaylist.length === 0 || playlistSongs.length === 0) return false
+    if (currentPlaylist.length !== playlistSongs.length) return false
+    
+    const currentIds = new Set(currentPlaylist.map(s => s?.id))
+    const playlistIds = new Set(playlistSongs.map(s => s?.id))
+    playerStore.setCurrentPlaylistContext({ type: 'playlist', id: playlist.id })
+    
+    if (currentIds.size !== playlistIds.size) return false
+    
+    for (const id of currentIds) {
+      if (!playlistIds.has(id)) return false
+    }
+    
+    return true
+  }
   
   const isOwner = playlist && playlist.userId === userStore.user?.id
 
   const handlePlayAll = () => {
     if (playlistSongs.length === 0) return
     
-    if (playerStore.currentPlaylist === playlistSongs && playerStore.isPlaying) {
+    if (isPlayingThisPlaylist()) {
       playerStore.toggle()
       return
     }
     
-    if (playerStore.currentPlaylist === playlistSongs && !playerStore.isPlaying) {
-      playerStore.toggle()
-      return
-    }
-    
+    playerStore.setSelectedPlaylist(playlistSongs)
     playerStore.playSelectedPlaylist()
   }
 
@@ -137,7 +139,7 @@ const PlaylistPage = observer(() => {
               onClick={handlePlayAll}
               className="size-14 rounded-full bg-[#2B7FFF] flex items-center justify-center hover:scale-105 transition-all cursor-pointer shadow-lg"
             >
-              {isPlayingThisPlaylist ? (
+              {isPlayingThisPlaylist() ? (
                 <BsPauseFill className="text-black text-2xl" />
               ) : (
                 <FaPlay className="text-black text-lg ml-0.5" />
@@ -146,8 +148,11 @@ const PlaylistPage = observer(() => {
           </div>
           <SongGrid 
             songs={playlistSongs}
+            playlist={playlistSongs}
             showAlbum={true}
             playlistId={id}
+            playlistType="playlist"
+            contentId={playlist.id}
           />
         </div>
       </div>

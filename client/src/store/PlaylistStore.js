@@ -259,7 +259,10 @@ export default class PlaylistStore {
         this._isLoading = true
         this._error = null
         try {
-            const result = await updateRecsPlaylists(top_k)        
+            const result = await updateRecsPlaylists(top_k)  
+            if (result.success) {
+                await this.fetchRecsPlaylists()
+            }   
             return result
         } catch (e) {
             runInAction(() => {

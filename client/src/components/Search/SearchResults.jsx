@@ -52,7 +52,7 @@ const SearchResults = observer(({ searchStore }) => {
       <div className="mt-6">
         <div className="divide-y divide-white/5">
           {results.map(track => (
-            <SongCard key={track.id} songId={track.id} inlineView={true} onPlay={() => {}} />
+            <SongCard key={track.id} songId={track.id} playlist={[track]} inlineView={true} onPlay={() => {}} />
           ))}
         </div>
       </div>
@@ -85,7 +85,7 @@ const SearchResults = observer(({ searchStore }) => {
           if (result.type === 'user') {
             return <UserCard key={uniqueKey} user={result} inlineView={true} />
           }
-          return <SongCard key={uniqueKey} songId={result.id} inlineView={true} />
+          return <SongCard key={uniqueKey} songId={result.id} playlist={[result]} inlineView={true} />
         })}
       </div>
     </div>

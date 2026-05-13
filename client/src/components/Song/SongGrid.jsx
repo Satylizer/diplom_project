@@ -4,9 +4,12 @@ import { PlayerContext } from '../../main'
 
 const SongGrid = ({
   songs = [],
+  playlist = null,
   showHeader = true,
   showAlbum = true,
-  playlistId = null
+  playlistId = null,
+  playlistType= null,
+  contentId = null
 }) => {
 
   const isEmpty = songs.length === 0
@@ -48,6 +51,9 @@ const SongGrid = ({
             index={idx + 1}
             showAlbum={showAlbum}
             playlistId={playlistId}
+            playlist={playlist}
+            playlistType={playlistType}
+            contentId={contentId}
           />
         ))}
       </div>
